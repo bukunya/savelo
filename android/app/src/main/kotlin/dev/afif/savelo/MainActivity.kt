@@ -1,4 +1,4 @@
-package com.example.savelo_fe
+package dev.afif.savelo
 
 import io.flutter.embedding.android.FlutterActivity
 
