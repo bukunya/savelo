@@ -5,14 +5,16 @@ class SBadge extends StatelessWidget {
   final Color color;
   final IconData? icon;
 
-  const SBadge({super.key, required this.text, required this.color, this.icon});
+  final Color? backgroundColor;
+
+  const SBadge({super.key, required this.text, required this.color, this.icon, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: backgroundColor ?? color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color, width: 1),
       ),

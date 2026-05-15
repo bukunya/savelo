@@ -40,6 +40,15 @@ class SDestinationCard extends StatelessWidget {
                   height: 120,
                   width: 200,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 120,
+                      width: 200,
+                      color: Colors.grey.shade200,
+                      alignment: Alignment.center,
+                      child: const Text('Oops!', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    );
+                  },
                 ),
               ),
               if (isVerified)

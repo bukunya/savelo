@@ -11,6 +11,7 @@ import '../../shared/widgets/s_destination_card.dart';
 import '../../shared/widgets/s_eco_streak_card.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import '../auth/login_screen.dart';
+import '../budget_planner/budget_planner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -233,11 +234,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     SAiItineraryCard(
                       onStartPlan: () {
-                        // TODO: Navigate to Budget Planner Flow
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
+                            builder: (context) => const BudgetPlannerScreen(),
                           ),
                         );
                       },
@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             location: "Yogyakarta",
                             priceRange: "Rp 0 – 50K",
                             imageUrl:
-                                "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Bringharjo_Market_Yogyakarta_-_Pasar_Bringharjo_Jogja_%282025%29_-_img_06.jpg/600px-Bringharjo_Market_Yogyakarta_-_Pasar_Bringharjo_Jogja_%282025%29_-_img_06.jpg",
+                                "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
                             isVerified: true,
                           ),
                           SDestinationCard(
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             location: "Bantul, DIY",
                             priceRange: "Rp 5K – 15K",
                             imageUrl:
-                                "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Hutan_Pinus_Mangunan_%281%29.jpg/600px-Hutan_Pinus_Mangunan_%281%29.jpg",
+                                "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg",
                             isVerified: false,
                           ),
                         ],

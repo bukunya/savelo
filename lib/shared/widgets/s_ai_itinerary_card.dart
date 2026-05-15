@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
+import 's_ai_gemini_badge.dart';
 import 's_button.dart';
 
 class SAiItineraryCard extends StatelessWidget {
@@ -60,11 +61,7 @@ class SAiItineraryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _buildCustomBadge(
-                text: "AI Gemini",
-                color: const Color(0xFFD9668D),
-                icon: Icons.auto_awesome,
-              ),
+              const SAiGeminiBadge(),
               const SizedBox(width: 8),
               _buildCustomBadge(
                 text: "< 30 detik",
