@@ -5,12 +5,16 @@ class SInput extends StatefulWidget {
   final String hintText;
   final IconData prefixIcon;
   final bool isPassword;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
   const SInput({
     super.key,
     required this.hintText,
     required this.prefixIcon,
     this.isPassword = false,
+    this.controller,
+    this.onChanged,
   });
 
   @override
@@ -23,6 +27,8 @@ class _SInputState extends State<SInput> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: widget.controller,
+      onChanged: widget.onChanged,
       obscureText: widget.isPassword ? _obscureText : false,
       decoration: InputDecoration(
         hintText: widget.hintText,

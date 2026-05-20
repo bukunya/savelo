@@ -5,19 +5,61 @@ import '../../shared/widgets/s_input.dart';
 import 'fp_success_screen.dart';
 import '../../shared/widgets/s_step_progress.dart';
 
-class FpResetScreen extends StatelessWidget {
+class FpResetScreen extends StatefulWidget {
   const FpResetScreen({super.key});
 
-  Widget _buildChecklistItem(String text) {
+  @override
+  State<FpResetScreen> createState() => _FpResetScreenState();
+}
+
+class _FpResetScreenState extends State<FpResetScreen> {
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  bool _hasMin8 = false;
+  bool _hasUppercase = false;
+  bool _hasNumber = false;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _validatePassword(String value) {
+    setState(() {
+      _hasMin8 = value.length >= 8;
+      _hasUppercase = value.contains(RegExp(r'[A-Z]'));
+      _hasNumber = value.contains(RegExp(r'[0-9]'));
+    });
+  }
+
+  bool _isFormValid() {
+    return _hasMin8 &&
+        _hasUppercase &&
+        _hasNumber &&
+        _passwordController.text.isNotEmpty &&
+        _passwordController.text == _confirmPasswordController.text;
+  }
+
+  Widget _buildChecklistItem(String text, bool isValid) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         children: [
-          const Icon(Icons.cancel, size: 16, color: SColors.sinput),
+          Icon(
+            isValid ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: isValid ? Colors.green : SColors.sinput,
+          ),
           const SizedBox(width: 8),
           Text(
             text,
-            style: const TextStyle(color: SColors.sparagraph, fontSize: 12),
+            style: TextStyle(
+              color: isValid ? Colors.green : SColors.sparagraph,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -77,36 +119,45 @@ class FpResetScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            const SInput(
+            SInput(
               hintText: "Password baru",
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              controller: _passwordController,
+              onChanged: _validatePassword,
             ),
             const SizedBox(height: 16),
-            const SInput(
+            SInput(
               hintText: "Konfirmasi password",
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              controller: _confirmPasswordController,
+              onChanged: (value) {
+                setState(() {}); // Trigger re-build to update button status
+              },
             ),
 
             const SizedBox(height: 16),
 
-            _buildChecklistItem("Min. 8 karakter"),
-            _buildChecklistItem("1 huruf besar"),
-            _buildChecklistItem("1 angka"),
+            _buildChecklistItem("Min. 8 karakter", _hasMin8),
+            _buildChecklistItem("1 huruf besar", _hasUppercase),
+            _buildChecklistItem("1 angka", _hasNumber),
 
             const SizedBox(height: 40),
 
             SButton(
               text: "Reset Password",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FpSuccessScreen(),
-                  ),
-                );
-              },
+              color: _isFormValid() ? SColors.sdarkgreen : Colors.grey.shade400,
+              onPressed: _isFormValid()
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FpSuccessScreen(),
+                        ),
+                      );
+                    }
+                  : () {},
             ),
           ],
         ),

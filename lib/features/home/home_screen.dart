@@ -22,6 +22,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,28 +168,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                       ],
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.search,
                                           color: SColors.sparagraph,
                                         ),
-                                        SizedBox(width: 12),
+                                        const SizedBox(width: 12),
                                         Expanded(
-                                          child: Text(
-                                            "Cari kota, destinasi, UMKM...",
-                                            style: TextStyle(
-                                              color: SColors.sparagraph,
+                                          child: TextField(
+                                            controller: _searchController,
+                                            focusNode: _searchFocusNode,
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                              hintText: "Cari kota, destinasi, UMKM...",
+                                              hintStyle: TextStyle(
+                                                color: SColors.sparagraph,
+                                                fontSize: 14,
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: const TextStyle(
+                                              color: SColors.sbold,
                                               fontSize: 14,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
+                                        if (_searchFocusNode.hasFocus)
+                                          GestureDetector(
+                                            onTap: () {
+                                              _searchController.clear();
+                                              _searchFocusNode.unfocus();
+                                            },
+                                            child: const Padding(
+                                              padding: EdgeInsets.only(left: 8.0),
+                                              child: Icon(Icons.close, color: SColors.sparagraph, size: 20),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                if (collapsedNotifOpacity > 0.0) ...[
+                                  if (collapsedNotifOpacity > 0.0 && !_searchFocusNode.hasFocus) ...[
                                   SizedBox(width: 12 * collapsedNotifOpacity),
                                   SizedBox(
                                     width: 40 * collapsedNotifOpacity,

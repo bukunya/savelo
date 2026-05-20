@@ -3,6 +3,7 @@ import '../../core/savelo_colors.dart';
 import 's_badge.dart';
 
 class STimelineItem extends StatelessWidget {
+  final String stepNumber;
   final String timeText;
   final String title;
   final String distance;
@@ -15,6 +16,7 @@ class STimelineItem extends StatelessWidget {
 
   const STimelineItem({
     super.key,
+    required this.stepNumber,
     required this.timeText,
     required this.title,
     required this.distance,
@@ -46,7 +48,7 @@ class STimelineItem extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      timeText.split(':')[0],
+                      stepNumber,
                       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),

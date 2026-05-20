@@ -297,6 +297,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
       // Hari 1: 5 items
       return [
         STimelineItem(
+          stepNumber: "1",
           timeText: "08:00",
           title: "Stasiun Tugu (Tiba)",
           distance: "1.4 km",
@@ -307,6 +308,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "2",
           timeText: "10:00",
           title: "Pasar Beringharjo",
           distance: "1.8 km",
@@ -317,6 +319,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "3",
           timeText: "12:30",
           title: "Soto Kadipiro",
           distance: "2.2 km",
@@ -327,6 +330,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "4",
           timeText: "14:00",
           title: "Keraton Yogyakarta",
           distance: "5.7 km",
@@ -337,6 +341,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "5",
           timeText: "17:00",
           title: "Tugu Pal Putih",
           distance: "5.5 km",
@@ -352,6 +357,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
       // Hari 2: 3 items
       return [
         STimelineItem(
+          stepNumber: "1",
           timeText: "09:00",
           title: "Prambanan Temple",
           distance: "15 km",
@@ -362,6 +368,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "2",
           timeText: "13:00",
           title: "Gudeg Yu Djum",
           distance: "4.0 km",
@@ -372,6 +379,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "3",
           timeText: "16:00",
           title: "Malioboro Walk",
           distance: "4.1 km",
@@ -387,6 +395,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
       // Hari 3: 2 items
       return [
         STimelineItem(
+          stepNumber: "1",
           timeText: "07:00",
           title: "Hutan Pinus Mangunan",
           distance: "22 km",
@@ -397,6 +406,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInScreen())),
         ),
         STimelineItem(
+          stepNumber: "2",
           timeText: "11:00",
           title: "Kopi Klotok",
           distance: "10 km",
