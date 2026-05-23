@@ -10,7 +10,6 @@ import '../../shared/widgets/s_category_cart.dart';
 import '../../shared/widgets/s_destination_card.dart';
 import '../../shared/widgets/s_eco_streak_card.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
-import '../auth/login_screen.dart';
 import '../budget_planner/budget_planner_screen.dart';
 import '../discovery_map/discovery_map_screen.dart';
 import '../notifications/notification_screen.dart';
@@ -19,6 +18,8 @@ import '../reward/reward_screen.dart';
 import '../discovery_map/trending_screen.dart';
 import '../trip/my_trip_screen.dart';
 import '../discovery_map/destinasi_detail_screen.dart';
+import '../profile/profile_screen.dart';
+import '../../core/auth_guard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -137,10 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                                          );
+                                          AuthGuard.requireLogin(context, () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                                            );
+                                          });
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(8),
@@ -270,10 +273,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: SPathPointsCard(
                                     points: "1.247",
                                     onRedeem: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const RewardScreen()),
-                                      );
+                                      AuthGuard.requireLogin(context, () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const RewardScreen()),
+                                        );
+                                      });
                                     },
                                   ),
                                 ),
@@ -300,12 +305,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     SAiItineraryCard(
                       onStartPlan: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BudgetPlannerScreen(),
-                          ),
-                        );
+                        AuthGuard.requireLogin(context, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BudgetPlannerScreen(),
+                            ),
+                          );
+                        });
                       },
                     ),
                     const SizedBox(height: 32),
@@ -313,10 +320,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SCategoryCard(
-                          label: "Budget",
-                          icon: Icons.account_balance_wallet_outlined,
-                          iconColor: SColors.sdarkgreen,
+                        GestureDetector(
+                          onTap: () {
+                            AuthGuard.requireLogin(context, () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const BudgetPlannerScreen()),
+                              );
+                            });
+                          },
+                          child: const SCategoryCard(
+                            label: "Budget",
+                            icon: Icons.account_balance_wallet_outlined,
+                            iconColor: SColors.sdarkgreen,
+                          ),
                         ),
                         SCategoryCard(
                           label: "Akses",
@@ -336,10 +353,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             iconColor: SColors.spurple,
                           ),
                         ),
-                        SCategoryCard(
-                          label: "Eco",
-                          icon: Icons.eco_outlined,
-                          iconColor: Colors.green,
+                        GestureDetector(
+                          onTap: () {
+                            AuthGuard.requireLogin(context, () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const EcoStreakScreen()),
+                              );
+                            });
+                          },
+                          child: const SCategoryCard(
+                            label: "Eco",
+                            icon: Icons.eco_outlined,
+                            iconColor: Colors.green,
+                          ),
                         ),
                       ],
                     ),
@@ -417,10 +444,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const EcoStreakScreen()),
-                        );
+                        AuthGuard.requireLogin(context, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const EcoStreakScreen()),
+                          );
+                        });
                       },
                       child: const SEcoStreakCard(
                         streakDays: 5,
@@ -451,24 +480,32 @@ class _HomeScreenState extends State<HomeScreen> {
               if (mounted) setState(() => _currentIndex = 0);
             });
           } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MyTripScreen()),
-            ).then((_) {
-              if (mounted) setState(() => _currentIndex = 0);
+            AuthGuard.requireLogin(context, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyTripScreen()),
+              ).then((_) {
+                if (mounted) setState(() => _currentIndex = 0);
+              });
             });
           } else if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const RewardScreen()),
-            ).then((_) {
-              if (mounted) setState(() => _currentIndex = 0);
+            AuthGuard.requireLogin(context, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RewardScreen()),
+              ).then((_) {
+                if (mounted) setState(() => _currentIndex = 0);
+              });
             });
           } else if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
+            AuthGuard.requireLogin(context, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              ).then((_) {
+                if (mounted) setState(() => _currentIndex = 0);
+              });
+            });
           }
         },
       ),

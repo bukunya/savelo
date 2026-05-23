@@ -5,9 +5,30 @@ import '../../shared/widgets/s_input.dart';
 import '../../shared/widgets/s_google_button.dart';
 import 'register_screen.dart';
 import 'fp_email_screen.dart';
+import '../../core/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isLoading = false;
+
+  void _handleLogin() async {
+    setState(() => _isLoading = true);
+    
+    // Simulate login process using extensible AuthService
+    bool success = await AuthService.instance.login("user", "pass");
+    
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    
+    if (success) {
+      Navigator.pop(context, true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +102,8 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             SButton(
-              text: "Login",
-              onPressed: () {
-                // TODO: Handle Login logic
-              },
+              text: _isLoading ? "Loading..." : "Login",
+              onPressed: _isLoading ? () {} : _handleLogin,
             ),
 
             const SizedBox(height: 24),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
+import 'check_in_rundown_screen.dart';
 
 class TripLiveScreen extends StatelessWidget {
   const TripLiveScreen({super.key});
@@ -245,7 +246,12 @@ class TripLiveScreen extends StatelessWidget {
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                                             elevation: 0,
                                           ),
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => const CheckInRundownScreen()),
+                                            );
+                                          },
                                           icon: const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
                                           label: const Text("Check-in", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                         ),

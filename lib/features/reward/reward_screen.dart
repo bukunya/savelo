@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
-import '../auth/login_screen.dart';
+import '../../core/auth_guard.dart';
+import '../discovery_map/discovery_map_screen.dart';
+import '../trip/my_trip_screen.dart';
+import '../profile/profile_screen.dart';
 
 class RewardScreen extends StatefulWidget {
   const RewardScreen({super.key});
@@ -211,17 +214,42 @@ class _RewardScreenState extends State<RewardScreen> {
       bottomNavigationBar: SBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
+          if (index == _currentIndex) return;
+
+          Widget nextScreen;
           if (index == 0) {
-            Navigator.pop(context);
+            Navigator.popUntil(context, (route) => route.isFirst);
+            return;
+          } else if (index == 1) {
+            nextScreen = const DiscoveryMapScreen();
+          } else if (index == 2) {
+            nextScreen = const MyTripScreen();
           } else if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
+            nextScreen = const ProfileScreen();
           } else {
-            setState(() {
-              _currentIndex = index;
+            return;
+          }
+
+          if (index == 2 || index == 4) {
+            AuthGuard.requireLogin(context, () {
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
             });
+          } else {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
           }
         },
       ),
