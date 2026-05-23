@@ -12,6 +12,13 @@ import '../../shared/widgets/s_eco_streak_card.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import '../auth/login_screen.dart';
 import '../budget_planner/budget_planner_screen.dart';
+import '../discovery_map/discovery_map_screen.dart';
+import '../notifications/notification_screen.dart';
+import '../eco_tracker/eco_streak_screen.dart';
+import '../reward/reward_screen.dart';
+import '../discovery_map/trending_screen.dart';
+import '../trip/my_trip_screen.dart';
+import '../discovery_map/destinasi_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -128,15 +135,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.notifications_none,
-                                          color: Colors.white,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.notifications_none,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -216,15 +231,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: 40 * collapsedNotifOpacity,
                                     child: Opacity(
                                       opacity: collapsedNotifOpacity,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.notifications_none,
-                                          color: Colors.white,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.notifications_none,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -237,17 +260,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(height: 20.0 * pointsOpacity),
                               Opacity(
                                 opacity: pointsOpacity,
-                                child: SPathPointsCard(
-                                  points: "1.247",
-                                  onRedeem: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          "Login untuk menukar poin!",
-                                        ),
-                                      ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const RewardScreen()),
                                     );
                                   },
+                                  child: SPathPointsCard(
+                                    points: "1.247",
+                                    onRedeem: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const RewardScreen()),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
@@ -282,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SCategoryCard(
@@ -295,10 +323,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           icon: Icons.accessible_forward,
                           iconColor: SColors.sblue,
                         ),
-                        SCategoryCard(
-                          label: "Peta",
-                          icon: Icons.map_outlined,
-                          iconColor: SColors.spurple,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const DiscoveryMapScreen()),
+                            );
+                          },
+                          child: const SCategoryCard(
+                            label: "Peta",
+                            icon: Icons.map_outlined,
+                            iconColor: SColors.spurple,
+                          ),
                         ),
                         SCategoryCard(
                           label: "Eco",
@@ -325,12 +361,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        Text(
-                          "Lihat semua",
-                          style: TextStyle(
-                            color: SColors.sdarkgreen.withOpacity(0.8),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const TrendingScreen()),
+                            );
+                          },
+                          child: Text(
+                            "Lihat semua",
+                            style: TextStyle(
+                              color: SColors.sdarkgreen.withOpacity(0.8),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ],
@@ -342,13 +386,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       clipBehavior: Clip.none,
                       child: Row(
                         children: [
-                          const SDestinationCard(
-                            title: "Pasar Beringharjo",
-                            location: "Yogyakarta",
-                            priceRange: "Rp 0 – 50K",
-                            imageUrl:
-                                "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
-                            isVerified: true,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const DestinasiDetailScreen()),
+                              );
+                            },
+                            child: const SDestinationCard(
+                              title: "Pasar Beringharjo",
+                              location: "Yogyakarta",
+                              priceRange: "Rp 0 – 50K",
+                              imageUrl:
+                                  "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
+                              isVerified: true,
+                            ),
                           ),
                           SDestinationCard(
                             title: "Hutan Pinus Mangunan",
@@ -363,12 +415,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    const SEcoStreakCard(
-                      streakDays: 5,
-                      co2Saved: "2.4",
-                      progress: 0.6,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EcoStreakScreen()),
+                        );
+                      },
+                      child: const SEcoStreakCard(
+                        streakDays: 5,
+                        co2Saved: "2.4",
+                        progress: 0.6,
+                      ),
                     ),
-
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -384,7 +443,28 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentIndex = index;
           });
-          if (index == 4) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DiscoveryMapScreen()),
+            ).then((_) {
+              if (mounted) setState(() => _currentIndex = 0);
+            });
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MyTripScreen()),
+            ).then((_) {
+              if (mounted) setState(() => _currentIndex = 0);
+            });
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const RewardScreen()),
+            ).then((_) {
+              if (mounted) setState(() => _currentIndex = 0);
+            });
+          } else if (index == 4) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
