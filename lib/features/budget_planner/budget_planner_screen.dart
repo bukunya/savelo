@@ -15,13 +15,29 @@ class BudgetPlannerScreen extends StatefulWidget {
 }
 
 class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
-  int _selectedBudgetIndex = 2;
-  final List<String> _budgets = ["Rp 500.000", "Rp 1.000.000", "Rp 1.500.000"];
+  final TextEditingController _budgetController = TextEditingController(text: "1.500.000");
+  final List<int> _budgetOptions = List.generate(20, (index) => (index + 1) * 500000);
+  
   final List<String> _filters = ["Wheelchair", "Stroller Friendly", "Child-Safe", "Lansia Friendly"];
   final Set<int> _selectedFilters = {};
 
   final TextEditingController _asalController = TextEditingController(text: "Jakarta");
   final TextEditingController _destinasiController = TextEditingController(text: "Yogyakarta");
+
+  String _formatCurrency(int value) {
+    return value.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
+  }
+
+  void _onBudgetSubmitted(String value) {
+    String cleanValue = value.replaceAll(".", "").replaceAll("Rp", "").replaceAll(" ", "");
+    int parsed = int.tryParse(cleanValue) ?? 1500000;
+    if (parsed < 100000) parsed = 100000;
+    if (parsed > 10000000) parsed = 10000000;
+    
+    setState(() {
+      _budgetController.text = _formatCurrency(parsed);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +81,23 @@ class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
                         padding: EdgeInsets.only(bottom: 4, right: 4),
                         child: Text("Rp", style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold)),
                       ),
-                      Text(
-                        _budgets[_selectedBudgetIndex].replaceAll("Rp ", ""),
-                        style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: SColors.sdarkgreen, height: 1),
+                      IntrinsicWidth(
+                        child: TextField(
+                          controller: _budgetController,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: SColors.sdarkgreen, height: 1),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onSubmitted: _onBudgetSubmitted,
+                          onTapOutside: (event) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            _onBudgetSubmitted(_budgetController.text);
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -83,14 +113,22 @@ class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_budgets.length, (index) {
+                      children: List.generate(_budgetOptions.length, (index) {
+                        int amount = _budgetOptions[index];
+                        String label = "Rp ${_formatCurrency(amount)}";
+                        String cleanCurrent = _budgetController.text.replaceAll(".", "");
+                        bool isSelected = amount.toString() == cleanCurrent;
+                        
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: SChoiceChip(
-                            label: _budgets[index],
-                            isSelected: _selectedBudgetIndex == index,
-                            onTap: () => setState(() => _selectedBudgetIndex = index),
+                            label: label,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                _budgetController.text = _formatCurrency(amount);
+                              });
+                            },
                           ),
                         );
                       }),

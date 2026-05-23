@@ -4,6 +4,7 @@ import '../../shared/widgets/s_bottom_navbar.dart';
 import 'widgets/logout_dialog.dart';
 import 'wishlist_screen.dart';
 
+import '../notifications/notification_screen.dart';
 import '../discovery_map/discovery_map_screen.dart';
 import '../trip/my_trip_screen.dart';
 import '../reward/reward_screen.dart';
@@ -129,7 +130,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistScreen()));
                     }),
                     const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    _buildMenuItem(Icons.notifications_none, "Notifikasi"),
+                    _buildMenuItem(Icons.notifications_none, "Notifikasi", onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
+                    }),
                     const Divider(height: 1, color: Color(0xFFEEEEEE)),
                     _buildMenuItem(Icons.logout, "Keluar", textColor: Colors.red.shade700, iconColor: Colors.red.shade700, iconBgColor: Colors.red.shade50, onTap: () {
                       LogoutDialog.show(context);

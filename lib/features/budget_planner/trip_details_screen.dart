@@ -5,6 +5,7 @@ import '../../shared/widgets/s_progress_bar.dart';
 import '../../shared/widgets/s_choice_chip.dart';
 import '../../shared/widgets/s_timeline_item.dart';
 import 'check_in_screen.dart';
+import 'smart_replanner_screen.dart';
 
 class TripDetailsScreen extends StatefulWidget {
   const TripDetailsScreen({super.key});
@@ -257,7 +258,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SmartReplannerScreen()));
+                  },
                 ),
               ),
             ),
