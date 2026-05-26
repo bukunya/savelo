@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
-import '../../shared/widgets/s_ai_gemini_badge.dart';
 
 class SmartReplannerScreen extends StatefulWidget {
   const SmartReplannerScreen({super.key});
@@ -18,7 +17,8 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
       "oldPrice": "Rp 85.000",
       "newTitle": "Bukit Bintang (free + foto sunset)",
       "newPrice": "Gratis",
-      "note": "Sama-sama spot sunset, view nggak kalah, gratis & 4.5★ (3.2K ulasan).",
+      "note":
+          "Sama-sama spot sunset, view nggak kalah, gratis & 4.5★ (3.2K ulasan).",
       "isSelected": true,
     },
     {
@@ -40,7 +40,7 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
       "newPrice": "Rp 7.000",
       "note": "Hemat 41K + dapat +80 EcoPoints (transport publik).",
       "isSelected": true,
-    }
+    },
   ];
 
   void _toggleAll(bool? value) {
@@ -57,13 +57,16 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
     });
   }
 
-  int get _selectedCount => _swapSuggestions.where((e) => e["isSelected"] as bool).length;
+  int get _selectedCount =>
+      _swapSuggestions.where((e) => e["isSelected"] as bool).length;
 
   int get _totalSavings {
     int total = 0;
     for (var item in _swapSuggestions) {
       if (item["isSelected"] as bool) {
-        String savingsStr = (item["savingsText"] as String).replaceAll("Hemat Rp ", "").replaceAll(".", "");
+        String savingsStr = (item["savingsText"] as String)
+            .replaceAll("Hemat Rp ", "")
+            .replaceAll(".", "");
         total += int.tryParse(savingsStr) ?? 0;
       }
     }
@@ -85,7 +88,11 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
         ),
         title: const Text(
           "Smart Re-Planner",
-          style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -105,34 +112,69 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                            const Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                             const SizedBox(width: 12),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF5B71F3),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.auto_awesome, color: Colors.white, size: 12),
+                                  Icon(
+                                    Icons.auto_awesome,
+                                    color: Colors.white,
+                                    size: 12,
+                                  ),
                                   const SizedBox(width: 4),
-                                  const Text("AI Gemini", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                  const Text(
+                                    "AI Gemini",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text("Budget kamu hampir habis", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                        const Text(
+                          "Budget kamu hampir habis",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         RichText(
                           text: const TextSpan(
-                            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              height: 1.4,
+                            ),
                             children: [
                               TextSpan(text: "Sisa "),
-                              TextSpan(text: "Rp 220.000", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: " untuk 1.5 hari lagi. AI Gemini sudah analisa 12 aktivitas remaining dan menyarankan 3 swap."),
+                              TextSpan(
+                                text: "Rp 220.000",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text:
+                                    " untuk 1.5 hari lagi. AI Gemini sudah analisa 12 aktivitas remaining dan menyarankan 3 swap.",
+                              ),
                             ],
                           ),
                         ),
@@ -147,16 +189,34 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text("Rp 1.280.000 / Rp 1.500.000", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                                  const Text(
+                                    "Rp 1.280.000 / Rp 1.500.000",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.9),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
-                                    child: const Text("85% terpakai", style: TextStyle(color: Color(0xFFDF9739), fontSize: 11, fontWeight: FontWeight.bold)),
+                                    child: const Text(
+                                      "85% terpakai",
+                                      style: TextStyle(
+                                        color: Color(0xFFDF9739),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -165,7 +225,9 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
                                   value: 0.85,
-                                  backgroundColor: Colors.white.withOpacity(0.3),
+                                  backgroundColor: Colors.white.withOpacity(
+                                    0.3,
+                                  ),
                                   color: Colors.red.shade700,
                                   minHeight: 8,
                                 ),
@@ -176,7 +238,7 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Suggestions Section
                   Padding(
                     padding: const EdgeInsets.all(24.0),
@@ -186,18 +248,31 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Saran Swap (3)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text(
+                              "Saran Swap (3)",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             GestureDetector(
                               onTap: () => _toggleAll(!isAllSelected),
                               child: Text(
                                 isAllSelected ? "Batal Pilih" : "Pilih Semua",
-                                style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(
+                                  color: SColors.sdarkgreen,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        ...List.generate(_swapSuggestions.length, (index) => _buildSwapCard(index)),
+                        ...List.generate(
+                          _swapSuggestions.length,
+                          (index) => _buildSwapCard(index),
+                        ),
                       ],
                     ),
                   ),
@@ -205,7 +280,7 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
               ),
             ),
           ),
-          
+
           // Sticky Bottom Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -227,30 +302,53 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Total hemat ($_selectedCount swap)", style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(
+                        "Total hemat ($_selectedCount swap)",
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         "Rp ${_totalSavings.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}",
-                        style: const TextStyle(color: SColors.sdarkgreen, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: SColors.sdarkgreen,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SColors.sdarkgreen,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       elevation: 0,
                     ),
                     onPressed: () {
                       Navigator.pop(context); // Pop back as requested
                     },
-                    child: const Text("Terapkan", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      "Terapkan",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -265,14 +363,19 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isSelected ? SColors.sdarkgreen : Colors.grey.shade200, width: isSelected ? 2 : 1),
-        boxShadow: isSelected ? [
-          BoxShadow(
-            color: SColors.sdarkgreen.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
-        ] : null,
+        border: Border.all(
+          color: isSelected ? SColors.sdarkgreen : Colors.grey.shade200,
+          width: isSelected ? 2 : 1,
+        ),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: SColors.sdarkgreen.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -288,11 +391,19 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: isSelected ? SColors.sdarkgreen : Colors.transparent,
+                      color: isSelected
+                          ? SColors.sdarkgreen
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: isSelected ? SColors.sdarkgreen : Colors.grey.shade400),
+                      border: Border.all(
+                        color: isSelected
+                            ? SColors.sdarkgreen
+                            : Colors.grey.shade400,
+                      ),
                     ),
-                    child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 16) : null,
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 16)
+                        : null,
                   ),
                 ),
                 Expanded(
@@ -302,15 +413,32 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.green.shade50,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(item["tag"] as String, style: const TextStyle(color: SColors.sdarkgreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              item["tag"] as String,
+                              style: const TextStyle(
+                                color: SColors.sdarkgreen,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 8),
-                          Text(item["savingsText"] as String, style: const TextStyle(color: SColors.sdarkgreen, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text(
+                            item["savingsText"] as String,
+                            style: const TextStyle(
+                              color: SColors.sdarkgreen,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -321,33 +449,75 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text("SEMULA", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+                                const Text(
+                                  "SEMULA",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   item["oldTitle"] as String,
-                                  style: const TextStyle(color: Colors.grey, fontSize: 13, decoration: TextDecoration.lineThrough),
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(item["oldPrice"] as String, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                Text(
+                                  item["oldPrice"] as String,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                            child: Icon(Icons.arrow_forward, color: SColors.sdarkgreen, size: 16),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 16,
+                            ),
+                            child: Icon(
+                              Icons.arrow_forward,
+                              color: SColors.sdarkgreen,
+                              size: 16,
+                            ),
                           ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text("SWAP KE", style: TextStyle(color: SColors.sdarkgreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                                const Text(
+                                  "SWAP KE",
+                                  style: TextStyle(
+                                    color: SColors.sdarkgreen,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   item["newTitle"] as String,
-                                  style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(item["newPrice"] as String, style: const TextStyle(color: SColors.sdarkgreen, fontSize: 12, fontWeight: FontWeight.bold)),
+                                Text(
+                                  item["newPrice"] as String,
+                                  style: const TextStyle(
+                                    color: SColors.sdarkgreen,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -368,17 +538,24 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.auto_awesome, color: Colors.orange, size: 16),
+                  const Icon(
+                    Icons.auto_awesome,
+                    color: Colors.orange,
+                    size: 16,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       item["note"] as String,
-                      style: const TextStyle(color: Colors.black87, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

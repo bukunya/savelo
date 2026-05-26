@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'core/savelo_colors.dart';
 import 'features/splash/splash_screen.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 void main() {
-  runApp(const SaveloApp());
+  runApp(const ProviderScope(child: SaveloApp()));
 }
 
 class SaveloApp extends StatelessWidget {

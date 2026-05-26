@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import 'widgets/logout_dialog.dart';
@@ -8,15 +9,16 @@ import '../notifications/notification_screen.dart';
 import '../discovery_map/discovery_map_screen.dart';
 import '../trip/my_trip_screen.dart';
 import '../reward/reward_screen.dart';
+import '../auth/providers/auth_provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final int _currentIndex = 4; // Saya index
 
   void _onBottomNavTapped(int index) {
@@ -48,6 +50,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).user;
+    final userName = user?.name ?? "Guest Traveler";
+    final userEmail = user?.email ?? "Belum login";
+    final firstLetter = userName.isNotEmpty ? userName[0].toUpperCase() : "G";
+
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F6),
       body: SingleChildScrollView(
@@ -79,17 +86,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Color(0xFFEAA236),
                           shape: BoxShape.circle,
                         ),
-                        child: const Center(
-                          child: Text("F", style: TextStyle(color: Colors.black87, fontSize: 28, fontWeight: FontWeight.bold)),
+                        child: Center(
+                          child: Text(firstLetter, style: const TextStyle(color: Colors.black87, fontSize: 28, fontWeight: FontWeight.bold)),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Falah Awgjadi", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                          Text(userName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          const Text("falah@savelo.com", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                          Text(userEmail, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

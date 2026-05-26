@@ -4,14 +4,29 @@ import '../../shared/widgets/s_button.dart';
 import 'fp_reset_screen.dart';
 import '../../shared/widgets/s_step_progress.dart';
 
-class FpOtpScreen extends StatelessWidget {
-  const FpOtpScreen({super.key});
+class FpOtpScreen extends StatefulWidget {
+  final String email;
+  const FpOtpScreen({super.key, required this.email});
 
-  Widget _buildOtpCell(BuildContext context) {
+  @override
+  State<FpOtpScreen> createState() => _FpOtpScreenState();
+}
+
+class _FpOtpScreenState extends State<FpOtpScreen> {
+  final List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
+
+  @override
+  void dispose() {
+    for (var c in _controllers) c.dispose();
+    super.dispose();
+  }
+
+  Widget _buildOtpCell(BuildContext context, int index) {
     return SizedBox(
       width: 48,
       height: 56,
       child: TextFormField(
+        controller: _controllers[index],
         textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         keyboardType: TextInputType.number,
@@ -85,14 +100,14 @@ class FpOtpScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text.rich(
+            Text.rich(
               TextSpan(
                 text: "Kode 6-digit dikirim ke ",
-                style: TextStyle(color: SColors.sparagraph, fontSize: 14),
+                style: const TextStyle(color: SColors.sparagraph, fontSize: 14),
                 children: [
                   TextSpan(
-                    text: "dina.p@email.com",
-                    style: TextStyle(
+                    text: widget.email,
+                    style: const TextStyle(
                       color: SColors.sbold,
                       fontWeight: FontWeight.bold,
                     ),
@@ -104,14 +119,7 @@ class FpOtpScreen extends StatelessWidget {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildOtpCell(context),
-                _buildOtpCell(context),
-                _buildOtpCell(context),
-                _buildOtpCell(context),
-                _buildOtpCell(context),
-                _buildOtpCell(context),
-              ],
+              children: List.generate(6, (index) => _buildOtpCell(context, index)),
             ),
 
             const SizedBox(height: 24),
@@ -140,10 +148,13 @@ class FpOtpScreen extends StatelessWidget {
             SButton(
               text: "Verifikasi",
               onPressed: () {
+                final otp = _controllers.map((c) => c.text).join();
+                if (otp.length < 6) return;
+                
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const FpResetScreen(),
+                    builder: (context) => FpResetScreen(email: widget.email, otp: otp),
                   ),
                 );
               },

@@ -1,32 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_button.dart';
 import '../../shared/widgets/s_input.dart';
 import '../../shared/widgets/s_google_button.dart';
 import 'register_screen.dart';
 import 'fp_email_screen.dart';
-import '../../core/auth_service.dart';
+import 'providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
   bool _isLoading = false;
 
   void _handleLogin() async {
-    setState(() => _isLoading = true);
-    
-    // Simulate login process using extensible AuthService
-    bool success = await AuthService.instance.login("user", "pass");
+    final success = await ref.read(authProvider.notifier).login(
+      _emailController.text,
+      _passwordController.text,
+    );
     
     if (!mounted) return;
-    setState(() => _isLoading = false);
     
     if (success) {
       Navigator.pop(context, true);
+    } else {
+      final error = ref.read(authProvider).error;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      }
     }
   }
 
@@ -67,12 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 32),
 
-            const SInput(hintText: "Email", prefixIcon: Icons.email_outlined),
+            SInput(
+              hintText: "Email", 
+              prefixIcon: Icons.email_outlined,
+              controller: _emailController,
+            ),
             const SizedBox(height: 16),
-            const SInput(
+            SInput(
               hintText: "Password",
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              controller: _passwordController,
             ),
 
             const SizedBox(height: 12),
@@ -102,8 +121,8 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 32),
 
             SButton(
-              text: _isLoading ? "Loading..." : "Login",
-              onPressed: _isLoading ? () {} : _handleLogin,
+              text: ref.watch(authProvider).isLoading ? "Loading..." : "Login",
+              onPressed: ref.watch(authProvider).isLoading ? () {} : _handleLogin,
             ),
 
             const SizedBox(height: 24),
@@ -124,7 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const SizedBox(height: 24),
 
-            SGoogleButton(onPressed: () {}),
+            SGoogleButton(onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Google Login akan diimplementasikan nanti.')));
+            }),
 
             const SizedBox(height: 32),
 

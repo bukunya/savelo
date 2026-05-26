@@ -1,20 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_button.dart';
 import '../../shared/widgets/s_input.dart';
 import '../../shared/widgets/s_google_button.dart';
+import 'providers/auth_provider.dart';
+import 'register_otp_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _agreedToTerms = false;
 
-  
+  bool _hasMin8 = false;
+  bool _hasUppercase = false;
+  bool _hasNumber = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _validatePassword(String value) {
+    setState(() {
+      _hasMin8 = value.length >= 8;
+      _hasUppercase = value.contains(RegExp(r'[A-Z]'));
+      _hasNumber = value.contains(RegExp(r'[0-9]'));
+    });
+  }
+
+  bool _isFormValid() {
+    return _hasMin8 &&
+        _hasUppercase &&
+        _hasNumber &&
+        _nameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _agreedToTerms;
+  }
+
   Widget _buildChecklistItem(String text, bool isValid) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -23,12 +57,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Icon(
             isValid ? Icons.check_circle : Icons.cancel,
             size: 16,
-            color: isValid ? SColors.sdarkgreen : SColors.sinput,
+            color: isValid ? Colors.green : SColors.sinput,
           ),
           const SizedBox(width: 8),
           Text(
             text,
-            style: const TextStyle(color: SColors.sparagraph, fontSize: 12),
+            style: TextStyle(
+              color: isValid ? Colors.green : SColors.sparagraph,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -72,25 +109,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 32),
 
             
-            const SInput(
+            SInput(
               hintText: "Nama lengkap",
               prefixIcon: Icons.person_outline,
+              controller: _nameController,
             ),
             const SizedBox(height: 16),
-            const SInput(hintText: "Email", prefixIcon: Icons.email_outlined),
+            SInput(
+              hintText: "Email", 
+              prefixIcon: Icons.email_outlined,
+              controller: _emailController,
+            ),
             const SizedBox(height: 16),
-            const SInput(
+            SInput(
               hintText: "Password",
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              controller: _passwordController,
+              onChanged: _validatePassword,
             ),
 
             const SizedBox(height: 16),
 
             
-            _buildChecklistItem("Min. 8 karakter", false),
-            _buildChecklistItem("1 huruf besar", false),
-            _buildChecklistItem("1 angka", false),
+            _buildChecklistItem("Min. 8 karakter", _hasMin8),
+            _buildChecklistItem("1 huruf besar", _hasUppercase),
+            _buildChecklistItem("1 angka", _hasNumber),
 
             const SizedBox(height: 24),
 
@@ -153,10 +197,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             
             SButton(
-              text: "Daftar Sekarang",
-              onPressed: () {
-                // TODO: Handle Register
-              },
+              text: ref.watch(authProvider).isLoading ? "Loading..." : "Daftar Sekarang",
+              color: _isFormValid() ? SColors.sdarkgreen : Colors.grey.shade400,
+              onPressed: _isFormValid() && !ref.watch(authProvider).isLoading
+                  ? () async {
+                      final success = await ref.read(authProvider.notifier).register(
+                        _nameController.text,
+                        _emailController.text,
+                        _passwordController.text,
+                      );
+                      
+                      if (success && mounted) {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterOtpScreen(email: _emailController.text)));
+                      } else if (mounted) {
+                        final error = ref.read(authProvider).error;
+                        if (error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+                        }
+                      }
+                    }
+                  : () {},
             ),
 
             const SizedBox(height: 24),
@@ -179,7 +239,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 24),
 
             
-            SGoogleButton(onPressed: () {}),
+            SGoogleButton(onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Google Login akan diimplementasikan nanti.')));
+            }),
 
             const SizedBox(height: 32),
 

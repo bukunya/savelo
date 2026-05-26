@@ -20,15 +20,17 @@ import '../trip/my_trip_screen.dart';
 import '../discovery_map/destinasi_detail_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../core/auth_guard.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../auth/providers/auth_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -50,6 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch authProvider to ensure session state is kept alive and accessible
+    ref.watch(authProvider);
+    
     double safeTop = MediaQuery.of(context).padding.top;
     double calculatedExpandedHeight = safeTop + 260.0;
 

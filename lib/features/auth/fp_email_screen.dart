@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_button.dart';
 import '../../shared/widgets/s_input.dart';
 import 'fp_otp_screen.dart';
 import '../../shared/widgets/s_step_progress.dart';
+import 'providers/auth_provider.dart';
 
-class FpEmailScreen extends StatelessWidget {
+class FpEmailScreen extends ConsumerStatefulWidget {
   const FpEmailScreen({super.key});
+
+  @override
+  ConsumerState<FpEmailScreen> createState() => _FpEmailScreenState();
+}
+
+class _FpEmailScreenState extends ConsumerState<FpEmailScreen> {
+  final _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +79,11 @@ class FpEmailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            const SInput(hintText: "Email", prefixIcon: Icons.email_outlined),
+            SInput(
+              hintText: "Email", 
+              prefixIcon: Icons.email_outlined,
+              controller: _emailController,
+            ),
 
             const SizedBox(height: 12),
 
@@ -76,12 +95,23 @@ class FpEmailScreen extends StatelessWidget {
             const SizedBox(height: 40),
 
             SButton(
-              text: "Kirim Kode",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FpOtpScreen()),
-                );
+              text: ref.watch(authProvider).isLoading ? "Loading..." : "Kirim Kode",
+              onPressed: ref.watch(authProvider).isLoading ? () {} : () async {
+                if (_emailController.text.isEmpty) return;
+                
+                final success = await ref.read(authProvider.notifier).requestPasswordReset(_emailController.text);
+                
+                if (success && mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FpOtpScreen(email: _emailController.text)),
+                  );
+                } else if (mounted) {
+                  final error = ref.read(authProvider).error;
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+                  }
+                }
               },
             ),
           ],

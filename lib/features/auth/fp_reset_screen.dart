@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_button.dart';
 import '../../shared/widgets/s_input.dart';
 import 'fp_success_screen.dart';
 import '../../shared/widgets/s_step_progress.dart';
+import 'providers/auth_provider.dart';
 
-class FpResetScreen extends StatefulWidget {
-  const FpResetScreen({super.key});
+class FpResetScreen extends ConsumerStatefulWidget {
+  final String email;
+  final String otp;
+  const FpResetScreen({super.key, required this.email, required this.otp});
 
   @override
-  State<FpResetScreen> createState() => _FpResetScreenState();
+  ConsumerState<FpResetScreen> createState() => _FpResetScreenState();
 }
 
-class _FpResetScreenState extends State<FpResetScreen> {
+class _FpResetScreenState extends ConsumerState<FpResetScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -146,16 +150,30 @@ class _FpResetScreenState extends State<FpResetScreen> {
             const SizedBox(height: 40),
 
             SButton(
-              text: "Reset Password",
+              text: ref.watch(authProvider).isLoading ? "Loading..." : "Reset Password",
               color: _isFormValid() ? SColors.sdarkgreen : Colors.grey.shade400,
-              onPressed: _isFormValid()
-                  ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FpSuccessScreen(),
-                        ),
+              onPressed: _isFormValid() && !ref.watch(authProvider).isLoading
+                  ? () async {
+                      final success = await ref.read(authProvider.notifier).resetPassword(
+                        widget.email,
+                        widget.otp,
+                        _passwordController.text,
+                        _confirmPasswordController.text,
                       );
+                      
+                      if (success && mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const FpSuccessScreen(),
+                          ),
+                        );
+                      } else if (mounted) {
+                        final error = ref.read(authProvider).error;
+                        if (error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+                        }
+                      }
                     }
                   : () {},
             ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/providers/auth_provider.dart';
 
-class LogoutDialog extends StatelessWidget {
+class LogoutDialog extends ConsumerWidget {
   const LogoutDialog({super.key});
 
   static void show(BuildContext context) {
@@ -14,7 +15,12 @@ class LogoutDialog extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
+    final userName = user?.name ?? "Guest";
+    final userEmail = user?.email ?? "";
+    final firstLetter = userName.isNotEmpty ? userName[0].toUpperCase() : "G";
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -72,8 +78,8 @@ class LogoutDialog extends StatelessWidget {
                     color: Color(0xFFEAA236),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
-                    child: Text("F", style: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Center(
+                    child: Text(firstLetter, style: const TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -81,9 +87,9 @@ class LogoutDialog extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Falah Awgjadi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(userName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text("falah@savelo.com", style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                      Text(userEmail, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -137,7 +143,7 @@ class LogoutDialog extends StatelessWidget {
                 elevation: 0,
               ),
               onPressed: () async {
-                await AuthService.instance.logout();
+                await ref.read(authProvider.notifier).logout();
                 if (context.mounted) {
                   Navigator.pop(context);
                   Navigator.popUntil(context, (route) => route.isFirst);
