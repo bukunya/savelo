@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
+import '../destinations/providers/destinations_provider.dart';
 
-class DestinasiDetailScreen extends StatelessWidget {
-  const DestinasiDetailScreen({super.key});
+class DestinasiDetailScreen extends ConsumerWidget {
+  final String placeId;
+  const DestinasiDetailScreen({super.key, required this.placeId});
 
   Widget _buildInfoCard(String title, String value) {
     return Expanded(
@@ -69,83 +72,90 @@ class DestinasiDetailScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(destinationDetailProvider(placeId));
+
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F6), // Slightly warm white background like image
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 280.0,
-            pinned: true,
-            backgroundColor: SColors.sbackground,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-              onPressed: () => Navigator.pop(context),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg", // Placeholder representing Pasar Beringharjo or Rice terrace
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.8),
-                        ],
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
+        error: (err, stack) => Center(child: Text("Gagal memuat: $err")),
+        data: (detail) => CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 280.0,
+              pinned: true,
+              backgroundColor: SColors.sbackground,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                onPressed: () => Navigator.pop(context),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      detail.photos.isNotEmpty ? detail.photos.first['url'] ?? "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg" : "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.4),
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.8),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 24,
-                    left: 24,
-                    right: 24,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: SColors.sdarkgreen,
-                                borderRadius: BorderRadius.circular(12),
+                    Positioned(
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: SColors.sdarkgreen,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(detail.mapCategory?.toUpperCase() ?? "UMKM", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                               ),
-                              child: const Text("UMKM", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.star, color: Colors.orange, size: 14),
-                            const SizedBox(width: 4),
-                            const Text("4.6 (2.3k)", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          "Pasar Beringharjo",
-                          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        const Row(
-                          children: [
-                            Icon(Icons.location_on_outlined, color: Colors.white70, size: 14),
-                            SizedBox(width: 4),
-                            Text("Jl. Margo Mulyo, Yogyakarta", style: TextStyle(color: Colors.white70, fontSize: 12)),
-                          ],
-                        )
-                      ],
-                    ),
-                  )
-                ],
+                              const SizedBox(width: 8),
+                              const Icon(Icons.star, color: Colors.orange, size: 14),
+                              const SizedBox(width: 4),
+                              Text("${detail.rating ?? 'N/A'} (${detail.userRatingCount ?? 0})", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            detail.name,
+                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, color: Colors.white70, size: 14),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(detail.address ?? detail.city, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -156,9 +166,9 @@ class DestinasiDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildInfoCard("Buka", "06:00–17:00"),
-                      _buildInfoCard("Harga", "Rp 0–50K"),
-                      _buildInfoCard("Jarak", "1.2 km"),
+                      _buildInfoCard("Buka", "06:00–17:00"), // TODO: Parse from opening_hours
+                      _buildInfoCard("Harga", detail.priceRange.label),
+                      _buildInfoCard("Jarak", "1.2 km"), // TODO: Calculate distance
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -246,9 +256,9 @@ class DestinasiDetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          "Pasar tertua di Yogya, berdiri sejak 1758. Dulu hanya pohon beringin sebelum jadi pusat perdagangan batik & jamu. Tip lokal: lantai 2 = bakery & rempah, lantai 3 = barang antik.",
-                          style: TextStyle(color: Colors.black87, fontSize: 13, height: 1.5),
+                        Text(
+                          detail.aiMicrostory ?? detail.description ?? "Deskripsi belum tersedia.",
+                          style: const TextStyle(color: Colors.black87, fontSize: 13, height: 1.5),
                         ),
                       ],
                     ),
@@ -349,7 +359,8 @@ class DestinasiDetailScreen extends StatelessWidget {
           )
         ],
       ),
-      bottomNavigationBar: Container(
+    ),
+    bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
           color: Colors.white,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import 'destinasi_detail_screen.dart';
@@ -6,15 +9,17 @@ import '../../core/auth_guard.dart';
 import '../trip/my_trip_screen.dart';
 import '../reward/reward_screen.dart';
 import '../profile/profile_screen.dart';
+import '../destinations/providers/destinations_provider.dart';
+import '../destinations/models/destination.dart';
 
-class DiscoveryMapScreen extends StatefulWidget {
+class DiscoveryMapScreen extends ConsumerStatefulWidget {
   const DiscoveryMapScreen({super.key});
 
   @override
-  State<DiscoveryMapScreen> createState() => _DiscoveryMapScreenState();
+  ConsumerState<DiscoveryMapScreen> createState() => _DiscoveryMapScreenState();
 }
 
-class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
+class _DiscoveryMapScreenState extends ConsumerState<DiscoveryMapScreen> {
   int _currentIndex = 1; // Index 1 is Jelajah
   int _selectedFilterIndex = 0; // 0 = Semua
   bool _showBottomCard = false;
@@ -26,24 +31,25 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
     {"label": "Heritage", "icon": Icons.circle, "color": Colors.brown},
   ];
 
-  Widget _buildMapPin({
+  MapPin? _selectedPin;
+  final MapController _mapController = MapController();
+
+  Widget _buildMapPinWidget({
     required String letter,
     required Color color,
-    required double top,
-    required double left,
     VoidCallback? onTap,
     String? tooltip,
   }) {
-    return Positioned(
-      top: top,
-      left: left,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Column(
-          children: [
-            if (tooltip != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 4),
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          if (tooltip != null)
+            Positioned(
+              top: -30,
+              child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -54,102 +60,88 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                 ),
                 child: Text(tooltip, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
               ),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  letter,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                ),
+            ),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))
+              ],
+            ),
+            child: Center(
+              child: Text(
+                letter,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  Color _parseColor(String colorHex) {
+    try {
+      final hex = colorHex.replaceAll('#', '');
+      return Color(int.parse('FF$hex', radix: 16));
+    } catch (_) {
+      return SColors.sdarkgreen;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     double safeTop = MediaQuery.of(context).padding.top;
 
+    final pinsAsync = ref.watch(mapPinsProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFE3E8DD), // Light greenish map color
       body: Stack(
         children: [
-          // Map Background placeholder lines
-          Positioned(
-            top: 200,
-            left: -50,
-            right: -50,
-            child: Container(
-              height: 300,
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.white.withOpacity(0.6), width: 8),
-                  bottom: BorderSide(color: Colors.white.withOpacity(0.6), width: 8),
-                ),
+          FlutterMap(
+            mapController: _mapController,
+            options: const MapOptions(
+              initialCenter: LatLng(-7.7956, 110.3695), // Yogyakarta
+              initialZoom: 13.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.savelo.app',
               ),
-            ),
+              pinsAsync.when(
+                data: (pins) => MarkerLayer(
+                  markers: pins.map((pin) {
+                    final isSelected = _selectedPin?.placeId == pin.placeId;
+                    return Marker(
+                      point: LatLng(pin.lat, pin.lng),
+                      width: 80,
+                      height: 80,
+                      child: _buildMapPinWidget(
+                        letter: pin.mapCategory.isNotEmpty ? pin.mapCategory[0].toUpperCase() : "P",
+                        color: _parseColor(pin.pinColor),
+                        tooltip: isSelected ? "Pilih" : null,
+                        onTap: () {
+                          setState(() {
+                            _selectedPin = pin;
+                            _showBottomCard = true;
+                          });
+                          _mapController.move(LatLng(pin.lat, pin.lng), 15.0);
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (e, st) => const SizedBox.shrink(),
+              ),
+            ],
           ),
-          Positioned(
-            top: -100,
-            bottom: -100,
-            left: 100,
-            child: Container(
-              width: 12,
-              color: Colors.white.withOpacity(0.6),
-            ),
-          ),
-          Positioned(
-            top: -100,
-            bottom: -100,
-            right: 80,
-            child: Container(
-              width: 12,
-              color: Colors.white.withOpacity(0.6),
-            ),
-          ),
-
-          // Pins
-          _buildMapPin(letter: "I", color: Colors.blue, top: safeTop + 130, left: 240),
-          _buildMapPin(letter: "U", color: SColors.sdarkgreen, top: safeTop + 180, left: 80),
-          _buildMapPin(letter: "H", color: Colors.brown, top: safeTop + 380, left: 280),
-          _buildMapPin(
-            letter: "U",
-            color: SColors.sdarkgreen,
-            top: safeTop + 480,
-            left: 70,
-          ),
-          _buildMapPin(
-            letter: "H",
-            color: Colors.deepPurple,
-            top: safeTop + 580,
-            left: 160,
-            tooltip: "Kuliner Murah dekat sini",
-            onTap: () {
-              setState(() {
-                _showBottomCard = true;
-              });
-            },
-          ),
-          _buildMapPin(
-            letter: "A",
-            color: Colors.white,
-            top: safeTop + 600,
-            left: 300,
-            onTap: () {},
-          ), // Navigation arrow
-          _buildMapPin(letter: "H", color: Colors.orange, top: safeTop + 660, left: 260),
 
           // Top Controls
           Positioned(
@@ -232,87 +224,103 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             ),
           ),
 
-          // Bottom Card Pop-up
-          if (_showBottomCard)
+          if (_showBottomCard && _selectedPin != null)
             Positioned(
               bottom: 16,
               left: 16,
               right: 16,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DestinasiDetailScreen()),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final detailAsync = ref.watch(destinationDetailProvider(_selectedPin!.placeId));
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DestinasiDetailScreen(placeId: _selectedPin!.placeId),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: _parseColor(_selectedPin!.pinColor),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _selectedPin!.mapCategory.isNotEmpty ? _selectedPin!.mapCategory[0].toUpperCase() : "P",
+                                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: detailAsync.when(
+                              data: (detail) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade50,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          detail.mapCategory?.toUpperCase() ?? "UMKM",
+                                          style: TextStyle(color: Colors.blue.shade700, fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.star, color: Colors.orange, size: 12),
+                                      const SizedBox(width: 4),
+                                      Text("${detail.rating ?? 'N/A'}", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    detail.name,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        detail.priceRange.label,
+                                        style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 12),
+                                      ),
+                                      Text(
+                                        "+ Tambah ➔",
+                                        style: TextStyle(color: SColors.sdarkgreen.withOpacity(0.8), fontWeight: FontWeight.bold, fontSize: 12),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              loading: () => const Center(child: CircularProgressIndicator()),
+                              error: (err, st) => const Text("Gagal memuat detail"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: SColors.sdarkgreen,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Center(
-                          child: Text("U", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text("UMKM", style: TextStyle(color: Colors.blue.shade700, fontSize: 10, fontWeight: FontWeight.bold)),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.star, color: Colors.orange, size: 12),
-                                const SizedBox(width: 4),
-                                const Text("4.6 • 1.2 km", style: TextStyle(color: Colors.grey, fontSize: 11)),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              "Pasar Beringharjo",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  "Rp 0–50K",
-                                  style: TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                                Text(
-                                  "+ Tambah ➔",
-                                  style: TextStyle(color: SColors.sdarkgreen.withOpacity(0.8), fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
         ],

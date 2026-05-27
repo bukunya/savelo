@@ -422,7 +422,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const DestinasiDetailScreen()),
+                                MaterialPageRoute(builder: (context) => const DestinasiDetailScreen(placeId: 'ChIJrTLr-GyuEmsRBfy61i59si0')),
                               );
                             },
                             child: const SDestinationCard(
