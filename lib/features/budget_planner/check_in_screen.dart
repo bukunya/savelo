@@ -4,10 +4,25 @@ import '../../shared/widgets/s_badge.dart';
 import '../../shared/widgets/s_info_banner.dart';
 import '../../shared/widgets/s_transport_option_card.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
+import 'models/itinerary.dart';
 import 'trip_selesai_screen.dart';
+import '../trip/check_in_rundown_screen.dart';
 
 class CheckInScreen extends StatefulWidget {
-  const CheckInScreen({super.key});
+  final ItineraryItemData item;
+  final bool isLastItem;
+  final ItineraryDetailData detail;
+  final int currentProgress;
+  final int totalItems;
+
+  const CheckInScreen({
+    super.key, 
+    required this.item,
+    required this.isLastItem,
+    required this.detail,
+    required this.currentProgress,
+    required this.totalItems,
+  });
 
   @override
   State<CheckInScreen> createState() => _CheckInScreenState();
@@ -89,14 +104,14 @@ class _CheckInScreenState extends State<CheckInScreen> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              "Pasar Beringharjo",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            Text(
+                              widget.item.name ?? 'Destinasi',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              "Jl. Margo Mulyo • 23 m dari pin",
-                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                            Text(
+                              "${widget.item.mapCategory} • ${widget.item.costLabel}",
+                              style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
                           ],
                         ),
@@ -270,11 +285,32 @@ class _CheckInScreenState extends State<CheckInScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
               elevation: 0,
             ),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push<bool>(
                 context,
-                MaterialPageRoute(builder: (context) => const TripSelesaiScreen()),
+                MaterialPageRoute(
+                  builder: (context) => CheckInRundownScreen(
+                    destinationName: widget.item.name ?? "Destinasi",
+                    currentProgress: widget.currentProgress,
+                    totalDestinations: widget.totalItems,
+                  ),
+                ),
               );
+
+              if (result == true) {
+                if (widget.isLastItem) {
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TripSelesaiScreen(detail: widget.detail)),
+                    );
+                  }
+                } else {
+                  if (context.mounted) {
+                    Navigator.pop(context, true); // Return true to increment completed items
+                  }
+                }
+              }
             },
             child: const Text(
               "Konfirmasi Check-in",

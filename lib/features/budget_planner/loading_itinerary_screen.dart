@@ -1,28 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
 import 'select_itinerary_screen.dart';
+import 'repositories/itinerary_repository.dart';
 
-class LoadingItineraryScreen extends StatefulWidget {
-  const LoadingItineraryScreen({super.key});
+class LoadingItineraryScreen extends ConsumerStatefulWidget {
+  final Map<String, dynamic> requestBody;
+
+  const LoadingItineraryScreen({super.key, required this.requestBody});
 
   @override
-  State<LoadingItineraryScreen> createState() => _LoadingItineraryScreenState();
+  ConsumerState<LoadingItineraryScreen> createState() => _LoadingItineraryScreenState();
 }
 
-class _LoadingItineraryScreenState extends State<LoadingItineraryScreen> {
+class _LoadingItineraryScreenState extends ConsumerState<LoadingItineraryScreen> {
   @override
   void initState() {
     super.initState();
-    // Simulate loading for 3 seconds, then navigate
-    Future.delayed(const Duration(seconds: 3), () {
+    _generate();
+  }
+
+  Future<void> _generate() async {
+    try {
+      final repo = ref.read(itineraryRepositoryProvider);
+      final result = await repo.generateItinerary(widget.requestBody);
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SelectItineraryScreen()),
+          MaterialPageRoute(builder: (context) => SelectItineraryScreen(generateData: result)),
         );
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal: $e')),
+        );
+        Navigator.pop(context);
+      }
+    }
   }
 
   @override

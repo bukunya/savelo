@@ -4,12 +4,47 @@ import '../../shared/widgets/s_itinerary_card.dart';
 import '../../shared/widgets/s_info_banner.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
 import 'trip_details_screen.dart';
+import 'models/itinerary.dart';
 
 class SelectItineraryScreen extends StatelessWidget {
-  const SelectItineraryScreen({super.key});
+  final ItineraryGenerateData generateData;
+
+  const SelectItineraryScreen({super.key, required this.generateData});
+
+  String _formatCurrency(num value) {
+    return value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
+  }
+
+  String _getFallbackImage(String variant) {
+    switch (variant) {
+      case 'hemat':
+        return "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg";
+      case 'seimbang':
+        return "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png";
+      case 'experience':
+        return "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg";
+      default:
+        return "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg";
+    }
+  }
+
+  String _getVariantDescription(String variant) {
+    switch (variant) {
+      case 'hemat':
+        return "Fokus ke transportasi publik & UMKM lokal";
+      case 'seimbang':
+        return "Mix antara hemat & pengalaman premium";
+      case 'experience':
+        return "Kuliner premium & destinasi hidden gem";
+      default:
+        return "Pilihan itinerary untuk kamu";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final request = generateData.request;
+    
     return Scaffold(
       backgroundColor: SColors.sbackground,
       appBar: AppBar(
@@ -34,52 +69,33 @@ class SelectItineraryScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RichText(
-              text: const TextSpan(
-                style: TextStyle(color: SColors.sparagraph, fontSize: 13, height: 1.5),
+              text: TextSpan(
+                style: const TextStyle(color: SColors.sparagraph, fontSize: 13, height: 1.5),
                 children: [
-                  TextSpan(text: "Gemini menyusun 3 opsi sesuai budget "),
-                  TextSpan(text: "Rp 1.500.000\n", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-                  TextSpan(text: "untuk 3 hari di Yogyakarta."),
+                  const TextSpan(text: "Gemini menyusun opsi sesuai budget "),
+                  TextSpan(text: "Rp ${_formatCurrency(request.budget)}\n", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                  TextSpan(text: "untuk ${request.durationDays} hari di ${request.destinationLabel}."),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            SItineraryCard(
-              title: "Hemat",
-              description: "Fokus ke transportasi publik & UMKM lokal",
-              imagePath: "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
-              price: "Rp 1.180.000",
-              budgetPercentageText: "79% budget",
-              budgetPercentage: 0.79,
-              tags: const ["TransJogja & sepeda", "9 destinasi UMKM", "Eco +180 pts"],
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TripDetailsScreen())),
-            ),
-
-            SItineraryCard(
-              title: "Seimbang",
-              description: "Mix antara hemat & pengalaman premium",
-              imagePath: "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png",
-              price: "Rp 1.450.000",
-              budgetPercentageText: "97% budget",
-              budgetPercentage: 0.97,
-              isTopPick: true,
-              tags: const ["6 destinasi ikonik", "Mix taxi + transit", "Eco +120 pts"],
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TripDetailsScreen())),
-            ),
-
-            SItineraryCard(
-              title: "Experience",
-              description: "Kuliner premium & destinasi hidden gem",
-              imagePath: "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg",
-              price: "Rp 1.490.000",
-              budgetPercentageText: "99% budget",
-              budgetPercentage: 0.99,
-              tags: const ["Heritage tour 2 hari", "Private guide UMKM", "Eco +60 pts"],
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TripDetailsScreen())),
-            ),
-
-            const SizedBox(height: 16),
+            ...generateData.itineraries.map((itinerary) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: SItineraryCard(
+                  title: itinerary.title,
+                  description: _getVariantDescription(itinerary.variant),
+                  imagePath: _getFallbackImage(itinerary.variant),
+                  price: "Rp ${_formatCurrency(itinerary.totalEstimate)}",
+                  budgetPercentageText: "${itinerary.budgetPercent}% budget",
+                  budgetPercentage: itinerary.budgetPercent / 100,
+                  isTopPick: itinerary.summary.isRecommended,
+                  tags: itinerary.summary.tags,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TripDetailsScreen(itineraryId: itinerary.id))),
+                ),
+              );
+            }).toList(),
 
             // Tip Banner
             SInfoBanner(

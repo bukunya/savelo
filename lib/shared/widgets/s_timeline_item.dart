@@ -81,28 +81,31 @@ class STimelineItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time, size: 12, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(timeText, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: SColors.sbold)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(distance, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                          ],
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 12, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(timeText, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: SColors.sbold)),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(distance, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [

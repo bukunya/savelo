@@ -5,6 +5,7 @@ import '../../core/auth_guard.dart';
 import '../discovery_map/discovery_map_screen.dart';
 import '../trip/my_trip_screen.dart';
 import '../profile/profile_screen.dart';
+import 'voucher_screen.dart';
 
 class RewardScreen extends StatefulWidget {
   const RewardScreen({super.key});
@@ -16,7 +17,7 @@ class RewardScreen extends StatefulWidget {
 class _RewardScreenState extends State<RewardScreen> {
   int _currentIndex = 3;
 
-  Widget _buildVoucherCard(IconData icon, String title, String subtitle, String points) {
+  Widget _buildVoucherCard(IconData icon, String title, String subtitle, String points, {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -55,7 +56,7 @@ class _RewardScreenState extends State<RewardScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               elevation: 0,
             ),
-            onPressed: () {},
+            onPressed: onTap ?? () {},
             child: const Text("Tukar", style: TextStyle(fontWeight: FontWeight.bold)),
           )
         ],
@@ -203,7 +204,9 @@ class _RewardScreenState extends State<RewardScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildVoucherCard(Icons.local_cafe_outlined, "Diskon 20% Kopi Klotok", "Kopi Klotok", "200 pts"),
+                _buildVoucherCard(Icons.local_cafe_outlined, "Diskon 20% Kopi Klotok", "Kopi Klotok", "200 pts", onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const VoucherScreen()));
+                }),
                 _buildVoucherCard(Icons.shopping_bag_outlined, "Voucher Rp 25K Batik UMKM", "Batik Bentenan", "350 pts"),
                 _buildVoucherCard(Icons.local_activity_outlined, "Free entry Keraton", "Keraton DIY", "500 pts"),
               ]),

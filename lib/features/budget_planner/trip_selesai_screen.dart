@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
+import 'models/itinerary.dart';
 import '../home/home_screen.dart';
 
 class TripSelesaiScreen extends StatelessWidget {
-  const TripSelesaiScreen({super.key});
+  final ItineraryDetailData? detail;
+
+  const TripSelesaiScreen({super.key, this.detail});
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +81,8 @@ class TripSelesaiScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text("3 Hari di", style: TextStyle(color: Colors.white70, fontSize: 14)),
-                        const Text("Yogyakarta 🇮🇩", style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                        Text("${detail?.request.durationDays ?? 3} Hari di", style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text("${detail?.request.destinationLabel ?? 'Yogyakarta'} 🇮🇩", style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 24),
                         
                         // 3 Stat Boxes
@@ -119,11 +122,11 @@ class TripSelesaiScreen extends StatelessWidget {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  const Text("Rp 1.43M", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                                  Text("Rp ${detail?.itinerary.totalEstimate ?? '1.43M'}", style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                                   const SizedBox(width: 8),
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 4),
-                                    child: const Text("/ Rp 1.50M", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                    child: Text("/ Rp ${detail != null ? detail!.itinerary.totalEstimate ~/ (detail!.itinerary.budgetPercent / 100) : '1.50M'}", style: const TextStyle(color: Colors.white70, fontSize: 12)),
                                   ),
                                 ],
                               ),
@@ -135,7 +138,7 @@ class TripSelesaiScreen extends StatelessWidget {
                                 decoration: BoxDecoration(color: Colors.black.withOpacity(0.2), borderRadius: BorderRadius.circular(3)),
                                 child: FractionallySizedBox(
                                   alignment: Alignment.centerLeft,
-                                  widthFactor: 0.95, // 1.43 / 1.50
+                                  widthFactor: detail != null ? detail!.itinerary.budgetPercent / 100 : 0.95,
                                   child: Container(
                                     decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(3)),
                                   ),

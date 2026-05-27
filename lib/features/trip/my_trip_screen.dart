@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import '../budget_planner/budget_planner_screen.dart';
@@ -7,15 +8,16 @@ import '../../core/auth_guard.dart';
 import '../discovery_map/discovery_map_screen.dart';
 import '../reward/reward_screen.dart';
 import '../profile/profile_screen.dart';
+import '../budget_planner/providers/itinerary_provider.dart';
 
-class MyTripScreen extends StatefulWidget {
+class MyTripScreen extends ConsumerStatefulWidget {
   const MyTripScreen({super.key});
 
   @override
-  State<MyTripScreen> createState() => _MyTripScreenState();
+  ConsumerState<MyTripScreen> createState() => _MyTripScreenState();
 }
 
-class _MyTripScreenState extends State<MyTripScreen> {
+class _MyTripScreenState extends ConsumerState<MyTripScreen> {
   int _currentIndex = 2; // Trip index
 
   Widget _buildTripCard({
@@ -200,19 +202,51 @@ class _MyTripScreenState extends State<MyTripScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                _buildTripCard(
-                  status: "Sedang berjalan",
-                  title: "Liburan Jogja Hemat",
-                  location: "Yogyakarta",
-                  date: "23–25 Apr 2026",
-                  people: "2 orang",
-                  price: "Rp 1.500.000",
-                  progress: 0.35,
-                  imageUrl: "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png", // Jogja placeholder
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const TripLiveScreen()),
+                // Active Trip Card logic
+                Consumer(
+                  builder: (context, ref, child) {
+                    final activeTripIdAsync = ref.watch(activeTripIdProvider);
+                    
+                    return activeTripIdAsync.when(
+                      data: (activeId) {
+                        if (activeId == null) {
+                          return const Padding(
+                            padding: EdgeInsets.only(bottom: 24),
+                            child: Center(
+                              child: Text(
+                                "Belum ada trip aktif. Yuk buat rencana baru!",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          );
+                        }
+
+                        final detailAsync = ref.watch(itineraryDetailProvider(activeId));
+                        return detailAsync.when(
+                          data: (detail) {
+                            return _buildTripCard(
+                              status: "Sedang berjalan",
+                              title: "Liburan ${detail.request.destinationLabel}",
+                              location: detail.request.destinationLabel,
+                              date: "${detail.request.durationDays} hari", // No date from backend currently, just using duration
+                              people: "${detail.request.numPeople} orang",
+                              price: "Rp ${detail.itinerary.totalEstimate}",
+                              progress: detail.itinerary.budgetPercent / 100, // Placeholder for actual progress logic
+                              imageUrl: "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png", // Jogja placeholder
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => TripLiveScreen(itineraryId: activeId)),
+                                );
+                              },
+                            );
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (err, stack) => Text("Gagal memuat trip: $err"),
+                        );
+                      },
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (err, stack) => const SizedBox(),
                     );
                   },
                 ),

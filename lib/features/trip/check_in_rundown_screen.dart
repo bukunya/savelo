@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
 
 class CheckInRundownScreen extends StatelessWidget {
-  const CheckInRundownScreen({super.key});
+  final String destinationName;
+  final int currentProgress;
+  final int totalDestinations;
+
+  const CheckInRundownScreen({
+    super.key,
+    required this.destinationName,
+    required this.currentProgress,
+    required this.totalDestinations,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +43,7 @@ class CheckInRundownScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 const Text("Check-in berhasil!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black87)),
                 const SizedBox(height: 12),
-                const Text("Pasar Beringharjo ditandai selesai.", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                Text("$destinationName ditandai selesai.", style: const TextStyle(color: Colors.grey, fontSize: 14)),
                 const SizedBox(height: 4),
                 RichText(
                   text: const TextSpan(
@@ -62,12 +71,12 @@ class CheckInRundownScreen extends StatelessWidget {
                     children: [
                       const Center(child: Text("PROGRESS TRIP", style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
                       const SizedBox(height: 8),
-                      const Center(child: Text("4 dari 10 destinasi selesai", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                      Center(child: Text("$currentProgress dari $totalDestinations destinasi selesai", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                       const SizedBox(height: 16),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
-                          value: 0.4,
+                          value: totalDestinations > 0 ? currentProgress / totalDestinations : 0.0,
                           backgroundColor: Colors.grey.shade200,
                           color: SColors.sdarkgreen,
                           minHeight: 8,
@@ -95,7 +104,7 @@ class CheckInRundownScreen extends StatelessWidget {
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.pop(context, true);
                 },
                 child: const Text("Lanjut ke Destinasi Berikutnya", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),

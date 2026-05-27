@@ -22,7 +22,10 @@ class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
   final Set<int> _selectedFilters = {};
 
   final TextEditingController _asalController = TextEditingController(text: "Jakarta");
-  final TextEditingController _destinasiController = TextEditingController(text: "Yogyakarta");
+  final TextEditingController _destinasiController = TextEditingController(text: "Surabaya");
+
+  int _durationDays = 3;
+  int _numPeople = 2;
 
   String _formatCurrency(int value) {
     return value.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
@@ -155,11 +158,20 @@ class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
             const SizedBox(height: 12),
 
             // Duration & People
-            const Row(
+            Row(
               children: [
-                Expanded(child: SStepperInput(label: "Durasi", initialValue: 3, suffix: "hari")),
-                SizedBox(width: 12),
-                Expanded(child: SStepperInput(label: "Orang", initialValue: 2)),
+                Expanded(child: SStepperInput(
+                  label: "Durasi", 
+                  initialValue: 3, 
+                  suffix: "hari",
+                  onChanged: (val) => setState(() => _durationDays = val),
+                )),
+                const SizedBox(width: 12),
+                Expanded(child: SStepperInput(
+                  label: "Orang", 
+                  initialValue: 2,
+                  onChanged: (val) => setState(() => _numPeople = val),
+                )),
               ],
             ),
             const SizedBox(height: 32),
@@ -221,7 +233,18 @@ class _BudgetPlannerScreenState extends State<BudgetPlannerScreen> {
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingItineraryScreen()));
+                  String cleanBudget = _budgetController.text.replaceAll(".", "").replaceAll("Rp", "").replaceAll(" ", "");
+                  int parsedBudget = int.tryParse(cleanBudget) ?? 1500000;
+                  
+                  final requestBody = {
+                    "origin": _asalController.text,
+                    "destination_label": _destinasiController.text,
+                    "duration_days": _durationDays,
+                    "num_people": _numPeople,
+                    "budget": parsedBudget
+                  };
+                  
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoadingItineraryScreen(requestBody: requestBody)));
                 },
                 child: const Text("Generate Itinerary", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               ),

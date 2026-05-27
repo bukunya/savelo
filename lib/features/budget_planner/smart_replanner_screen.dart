@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
 
+import 'dart:math';
+
 class SmartReplannerScreen extends StatefulWidget {
-  const SmartReplannerScreen({super.key});
+  final int currentEstimate;
+  final int totalBudget;
+
+  const SmartReplannerScreen({
+    super.key,
+    required this.currentEstimate,
+    required this.totalBudget,
+  });
 
   @override
   State<SmartReplannerScreen> createState() => _SmartReplannerScreenState();
@@ -159,21 +168,21 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                         ),
                         const SizedBox(height: 8),
                         RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
+                          text: TextSpan(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               height: 1.4,
                             ),
                             children: [
-                              TextSpan(text: "Sisa "),
+                              const TextSpan(text: "Sisa "),
                               TextSpan(
-                                text: "Rp 220.000",
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                text: "Rp ${(widget.totalBudget - widget.currentEstimate).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}",
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              TextSpan(
+                              const TextSpan(
                                 text:
-                                    " untuk 1.5 hari lagi. AI Gemini sudah analisa 12 aktivitas remaining dan menyarankan 3 swap.",
+                                    " untuk destinasi kamu yang belum selesai. AI Gemini menyarankan 3 swap.",
                               ),
                             ],
                           ),
@@ -192,9 +201,9 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    "Rp 1.280.000 / Rp 1.500.000",
-                                    style: TextStyle(
+                                  Text(
+                                    "Rp ${widget.currentEstimate.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} / Rp ${widget.totalBudget.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}",
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
@@ -209,9 +218,9 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                                       color: Colors.white.withOpacity(0.9),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
-                                    child: const Text(
-                                      "85% terpakai",
-                                      style: TextStyle(
+                                    child: Text(
+                                      "${((widget.currentEstimate / widget.totalBudget) * 100).toInt()}% terpakai",
+                                      style: const TextStyle(
                                         color: Color(0xFFDF9739),
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -224,7 +233,7 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: 0.85,
+                                  value: widget.totalBudget > 0 ? widget.currentEstimate / widget.totalBudget : 0,
                                   backgroundColor: Colors.white.withOpacity(
                                     0.3,
                                   ),
@@ -334,6 +343,19 @@ class _SmartReplannerScreenState extends State<SmartReplannerScreen> {
                       elevation: 0,
                     ),
                     onPressed: () {
+                      if (_selectedCount > 0) {
+                        // Find the last selected item (simulating backend limit of 1 swap)
+                        final lastSelected = _swapSuggestions.lastWhere((e) => e["isSelected"] as bool);
+                        final randomId = Random().nextInt(100) + 1; // 1 to 100
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Menyimpan swap ID: $randomId (${lastSelected['newTitle']}) ke server..."),
+                            backgroundColor: SColors.sdarkgreen,
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      }
                       Navigator.pop(context); // Pop back as requested
                     },
                     child: const Text(
