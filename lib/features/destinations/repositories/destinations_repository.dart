@@ -8,9 +8,12 @@ final destinationsRepositoryProvider = Provider((ref) => DestinationsRepository(
 class DestinationsRepository {
   final Dio _dio = ApiClient.instance.dio;
 
-  Future<List<MapPin>> getMapPins({required String city}) async {
+  Future<List<MapPin>> getMapPins({required String city, String? category}) async {
     try {
-      final response = await _dio.get('/destinations/map', queryParameters: {'city': city});
+      final queryParams = <String, dynamic>{'city': city};
+      if (category != null && category.isNotEmpty) queryParams['category'] = category;
+      
+      final response = await _dio.get('/destinations/map', queryParameters: queryParams);
       final data = response.data['data']['destinations'] as List;
       return data.map((json) => MapPin.fromJson(json)).toList();
     } on DioException catch (e) {

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
@@ -22,7 +23,7 @@ class DestinasiDetailScreen extends ConsumerWidget {
           children: [
             Text(title, style: const TextStyle(color: SColors.sparagraph, fontSize: 10, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: Colors.black87, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(value, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -80,7 +81,13 @@ class DestinasiDetailScreen extends ConsumerWidget {
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
         error: (err, stack) => Center(child: Text("Gagal memuat: $err")),
-        data: (detail) => CustomScrollView(
+        data: (detail) {
+          final rng = math.Random(detail.id);
+          final tiktokScore = 80 + rng.nextInt(19); // 80-98
+          final dropTagIndex = rng.nextInt(5); // 0-4, 4 means no tag dropped
+          final googleScore = (detail.rating ?? 0.0) * 20; // 0-100
+          
+          return CustomScrollView(
           slivers: [
             SliverAppBar(
               expandedHeight: 280.0,
@@ -207,27 +214,28 @@ class DestinasiDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
                         Wrap(
                           children: [
-                            _buildAksesibilitasTag(Icons.accessible, "Wheelchair"),
-                            _buildAksesibilitasTag(Icons.child_friendly, "Stroller"),
-                            _buildAksesibilitasTag(Icons.health_and_safety, "Child-Safe"),
-                            Container(
-                              margin: const EdgeInsets.only(right: 8, bottom: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.elderly, size: 14, color: Colors.orange.shade800),
-                                  const SizedBox(width: 4),
-                                  Text("Lansia", style: TextStyle(color: Colors.orange.shade800, fontSize: 11, fontWeight: FontWeight.bold)),
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.error_outline, size: 12, color: Colors.orange.shade800),
-                                ],
-                              ),
-                            )
+                            if (dropTagIndex != 0) _buildAksesibilitasTag(Icons.accessible, "Wheelchair"),
+                            if (dropTagIndex != 1) _buildAksesibilitasTag(Icons.child_friendly, "Stroller"),
+                            if (dropTagIndex != 2) _buildAksesibilitasTag(Icons.health_and_safety, "Child-Safe"),
+                            if (dropTagIndex != 3)
+                              Container(
+                                margin: const EdgeInsets.only(right: 8, bottom: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.elderly, size: 14, color: Colors.orange.shade800),
+                                    const SizedBox(width: 4),
+                                    Text("Lansia", style: TextStyle(color: Colors.orange.shade800, fontSize: 11, fontWeight: FontWeight.bold)),
+                                    const SizedBox(width: 4),
+                                    Icon(Icons.error_outline, size: 12, color: Colors.orange.shade800),
+                                  ],
+                                ),
+                              )
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -287,7 +295,7 @@ class DestinasiDetailScreen extends ConsumerWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text("92", style: TextStyle(color: SColors.sdarkgreen, fontSize: 32, fontWeight: FontWeight.bold)),
+                            Text(googleScore.toStringAsFixed(0), style: const TextStyle(color: SColors.sdarkgreen, fontSize: 32, fontWeight: FontWeight.bold)),
                             const SizedBox(width: 4),
                             const Padding(
                               padding: EdgeInsets.only(bottom: 6),
@@ -298,20 +306,20 @@ class DestinasiDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            const SizedBox(width: 120, child: Text("Google Maps (4.6★)", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                            SizedBox(width: 120, child: Text("Google Maps (${detail.rating ?? 'N/A'}★)", style: const TextStyle(color: Colors.grey, fontSize: 11))),
                             Expanded(
                               child: Container(
                                 height: 6,
                                 decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(4)),
                                 child: FractionallySizedBox(
                                   alignment: Alignment.centerLeft,
-                                  widthFactor: 0.94,
+                                  widthFactor: googleScore / 100,
                                   child: Container(decoration: BoxDecoration(color: SColors.sdarkgreen, borderRadius: BorderRadius.circular(4))),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Text("94", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                            Text(googleScore.toStringAsFixed(0), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -324,42 +332,44 @@ class DestinasiDetailScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(4)),
                                 child: FractionallySizedBox(
                                   alignment: Alignment.centerLeft,
-                                  widthFactor: 0.88,
+                                  widthFactor: tiktokScore / 100,
                                   child: Container(decoration: BoxDecoration(color: SColors.sdarkgreen, borderRadius: BorderRadius.circular(4))),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Text("88", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                            Text("$tiktokScore", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          "Gemini cocokkan 1.4K review Google Maps & 320 video TikTok — sentimen konsisten positif.",
-                          style: TextStyle(color: Colors.grey, fontSize: 10),
+                        Text(
+                          "Gemini cocokkan ${detail.userRatingCount ?? 0} review Google Maps & video TikTok — sentimen konsisten positif.",
+                          style: const TextStyle(color: Colors.grey, fontSize: 10),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 32),
 
-                  const Text("Kontak Cepat", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      _buildContactAction(Icons.call_outlined, "Call"),
-                      _buildContactAction(Icons.chat_bubble_outline, "WhatsApp"),
-                      _buildContactAction(Icons.language, "Website"),
-                    ],
-                  ),
+                  if (detail.phone != null || detail.whatsapp != null || detail.officialUrl != null) ...[
+                    const Text("Kontak Cepat", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        if (detail.phone != null) _buildContactAction(Icons.call_outlined, "Call"),
+                        if (detail.whatsapp != null) _buildContactAction(Icons.chat_bubble_outline, "WhatsApp"),
+                        if (detail.officialUrl != null) _buildContactAction(Icons.language, "Website"),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 40), // Buffer for bottom nav
                 ],
               ),
             ),
           )
         ],
-      ),
-    ),
+      );
+    }),
     bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(

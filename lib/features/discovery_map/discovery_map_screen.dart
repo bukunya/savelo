@@ -97,7 +97,11 @@ class _DiscoveryMapScreenState extends ConsumerState<DiscoveryMapScreen> {
   Widget build(BuildContext context) {
     double safeTop = MediaQuery.of(context).padding.top;
 
-    final pinsAsync = ref.watch(mapPinsProvider);
+    final String? currentCategory = _selectedFilterIndex == 0 
+        ? null 
+        : _filters[_selectedFilterIndex]["label"].toString().toLowerCase();
+    
+    final pinsAsync = ref.watch(mapPinsProvider(currentCategory));
 
     return Scaffold(
       backgroundColor: const Color(0xFFE3E8DD), // Light greenish map color
@@ -137,8 +141,17 @@ class _DiscoveryMapScreenState extends ConsumerState<DiscoveryMapScreen> {
                     );
                   }).toList(),
                 ),
-                loading: () => const SizedBox.shrink(),
-                error: (e, st) => const SizedBox.shrink(),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, st) {
+                  debugPrint('Error loading pins: $e');
+                  return Center(
+                    child: Container(
+                      color: Colors.white70,
+                      padding: const EdgeInsets.all(8),
+                      child: Text('Error loading pins: $e', style: const TextStyle(color: Colors.red)),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -312,7 +325,7 @@ class _DiscoveryMapScreenState extends ConsumerState<DiscoveryMapScreen> {
                                   )
                                 ],
                               ),
-                              loading: () => const Center(child: CircularProgressIndicator()),
+                              loading: () => const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
                               error: (err, st) => const Text("Gagal memuat detail"),
                             ),
                           ),

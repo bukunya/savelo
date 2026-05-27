@@ -4,7 +4,7 @@ import '../storage/token_storage.dart';
 
 class ApiClient {
   static final ApiClient instance = ApiClient._internal();
-  
+
   late Dio dio;
 
   // Since you are using Android Emulator, 10.0.2.2 maps to your machine's localhost:8000
@@ -12,8 +12,10 @@ class ApiClient {
   static String get baseUrl {
     if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api';
+      // return 'https://savelobe.afif.dev/api';
     }
     return 'http://localhost:8000/api';
+    // return 'https://savelobe.afif.dev/api';
   }
 
   ApiClient._internal() {
