@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../core/utils/image_helper.dart';
+import 'providers/favorites_provider.dart';
 
-class WishlistScreen extends StatelessWidget {
+class WishlistScreen extends ConsumerWidget {
   const WishlistScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesAsync = ref.watch(favoritesProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F6),
       appBar: AppBar(
@@ -22,69 +26,45 @@ class WishlistScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(16),
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.75, // Adjust for card height
-        children: [
-          _buildCard(
-            context,
-            title: "Pasar Beringharjo",
-            location: "Yogyakarta",
-            rating: "4.6",
-            price: "Rp 0",
-            imageUrl: ImageHelper.getImageForCategory("umkm", "pasar_beringharjo"),
-          ),
-          _buildCard(
-            context,
-            title: "Hutan Pinus Mangunan",
-            location: "Bantul, DIY",
-            rating: "4.8",
-            price: "Rp 5K",
-            imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus"),
-            hasDiscount: true,
-          ),
-          _buildCard(
-            context,
-            title: "Candi Prambanan",
-            location: "Sleman",
-            rating: "4.7",
-            price: "Rp 50K",
-            imageUrl: ImageHelper.getImageForCategory("heritage", "candi_prambanan"), // to show placeholder
-          ),
-          _buildCard(
-            context,
-            title: "Kopi Klotok",
-            location: "Sleman",
-            rating: "4.7",
-            price: "Rp 20K",
-            imageUrl: ImageHelper.getImageForCategory("cafe", "kopi_klotok"),
-          ),
-          _buildCard(
-            context,
-            title: "Tugu Pal Putih",
-            location: "Yogyakarta",
-            rating: "4.5",
-            price: "Gratis",
-            imageUrl: ImageHelper.getImageForCategory("iconic", "tugu_pal_putih"),
-          ),
-          _buildCard(
-            context,
-            title: "Gudeg Yu Djum",
-            location: "Yogyakarta",
-            rating: "4.6",
-            price: "Rp 30K",
-            imageUrl: ImageHelper.getImageForCategory("restoran", "gudeg_yu_djum"),
-          ),
-        ],
+      body: favoritesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
+        error: (err, stack) => Center(child: Text("Gagal memuat: $err")),
+        data: (favorites) {
+          if (favorites.isEmpty) {
+            return const Center(child: Text("Belum ada destinasi tersimpan."));
+          }
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.75, // Adjust for card height
+            ),
+            itemCount: favorites.length,
+            itemBuilder: (context, index) {
+              final dest = favorites[index];
+              return _buildCard(
+                context,
+                ref,
+                id: dest.id,
+                title: dest.name,
+                location: dest.address ?? dest.city,
+                rating: dest.rating?.toString() ?? "-",
+                price: dest.priceRange ?? dest.priceTier ?? "-",
+                imageUrl: ImageHelper.getImageForCategory(dest.category, dest.placeId),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
   Widget _buildCard(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
+    required int id,
     required String title,
     required String location,
     required String rating,
@@ -120,13 +100,18 @@ class WishlistScreen extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(favoritesProvider.notifier).toggleFavorite(id);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.favorite, color: Colors.red.shade600, size: 16),
                     ),
-                    child: Icon(Icons.favorite, color: Colors.red.shade600, size: 16),
                   ),
                 ),
                 if (hasDiscount)
@@ -178,7 +163,15 @@ class WishlistScreen extends StatelessWidget {
                         Text(rating, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                       ],
                     ),
-                    Text(price, style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Expanded(
+                      child: Text(
+                        price, 
+                        style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 12),
+                        textAlign: TextAlign.right,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ],

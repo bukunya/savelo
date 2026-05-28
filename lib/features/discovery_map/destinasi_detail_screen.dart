@@ -5,6 +5,7 @@ import '../../core/savelo_colors.dart';
 import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
 import '../destinations/providers/destinations_provider.dart';
+import '../profile/providers/favorites_provider.dart';
 
 class DestinasiDetailScreen extends ConsumerWidget {
   final String placeId;
@@ -98,6 +99,29 @@ class DestinasiDetailScreen extends ConsumerWidget {
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
                 onPressed: () => Navigator.pop(context),
               ),
+              actions: [
+                Consumer(
+                  builder: (context, ref, child) {
+                    final isFav = ref.watch(favoritesProvider.notifier).isFavorite(detail.id);
+                    return Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      decoration: const BoxDecoration(
+                        color: Colors.white24,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : Colors.white,
+                        ),
+                        onPressed: () {
+                          ref.read(favoritesProvider.notifier).toggleFavorite(detail.id);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   fit: StackFit.expand,

@@ -19,13 +19,13 @@ class ItineraryRequestData {
 
   factory ItineraryRequestData.fromJson(Map<String, dynamic> json) {
     return ItineraryRequestData(
-      id: json['id'],
-      origin: json['origin'],
-      destinationLabel: json['destination_label'],
-      durationDays: json['duration_days'],
-      numPeople: json['num_people'],
-      budget: json['budget'],
-      status: json['status'],
+      id: json['id'] as int,
+      origin: json['origin'] as String? ?? "Unknown Origin",
+      destinationLabel: json['destination_label'] as String? ?? "Unknown Destination",
+      durationDays: json['duration_days'] as int? ?? 1,
+      numPeople: json['num_people'] as int? ?? 1,
+      budget: json['budget'] as num? ?? 0,
+      status: json['status'] as String? ?? "pending",
     );
   }
 }
@@ -43,9 +43,9 @@ class ItinerarySummaryDetails {
 
   factory ItinerarySummaryDetails.fromJson(Map<String, dynamic> json) {
     return ItinerarySummaryDetails(
-      tags: List<String>.from(json['tags']),
-      ecoPoints: json['eco_points'],
-      isRecommended: json['is_recommended'],
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
+      ecoPoints: json['eco_points'] as int? ?? 0,
+      isRecommended: json['is_recommended'] as bool? ?? false,
     );
   }
 }
@@ -69,12 +69,12 @@ class ItinerarySummary {
 
   factory ItinerarySummary.fromJson(Map<String, dynamic> json) {
     return ItinerarySummary(
-      id: json['id'],
-      variant: json['variant'],
-      title: json['title'],
-      totalEstimate: json['total_estimate'],
-      budgetPercent: json['budget_percent'],
-      summary: ItinerarySummaryDetails.fromJson(json['summary']),
+      id: json['id'] as int? ?? 0,
+      variant: json['variant'] as String? ?? "hemat",
+      title: json['title'] as String? ?? "Unknown Title",
+      totalEstimate: json['total_estimate'] as num? ?? 0,
+      budgetPercent: json['budget_percent'] as int? ?? 0,
+      summary: ItinerarySummaryDetails.fromJson(json['summary'] ?? {'tags': [], 'eco_points': 0, 'is_recommended': false}),
     );
   }
 }
@@ -111,9 +111,9 @@ class ItineraryLegData {
 
   factory ItineraryLegData.fromJson(Map<String, dynamic> json) {
     return ItineraryLegData(
-      distanceKm: json['distance_km'],
-      durationMin: json['duration_min'],
-      transportMode: json['transport_mode'],
+      distanceKm: json['distance_km'] as num? ?? 0,
+      durationMin: json['duration_min'] as int? ?? 0,
+      transportMode: json['transport_mode'] as String? ?? "unknown",
     );
   }
 }
@@ -145,15 +145,15 @@ class ItineraryItemData {
 
   factory ItineraryItemData.fromJson(Map<String, dynamic> json) {
     return ItineraryItemData(
-      id: json['id'],
-      placeId: json['place_id'],
-      name: json['name'],
-      mapCategory: json['map_category'],
-      category: json['category'],
-      orderIndex: json['order_index'],
-      visitTime: json['visit_time'],
-      costEstimate: json['cost_estimate'],
-      costLabel: json['cost_label'],
+      id: json['id'] as int? ?? 0,
+      placeId: json['place_id'] as String? ?? "",
+      name: json['name'] as String?,
+      mapCategory: json['map_category'] as String?,
+      category: json['category'] as String?,
+      orderIndex: json['order_index'] as int? ?? 0,
+      visitTime: json['visit_time'] as String? ?? "00:00",
+      costEstimate: json['cost_estimate'] as num? ?? 0,
+      costLabel: json['cost_label'] as String? ?? "Rp0",
       legToNext: json['leg_to_next'] != null
           ? ItineraryLegData.fromJson(json['leg_to_next'])
           : null,
@@ -174,11 +174,11 @@ class ItineraryDayData {
 
   factory ItineraryDayData.fromJson(Map<String, dynamic> json) {
     return ItineraryDayData(
-      dayNumber: json['day_number'],
-      estimatedCost: json['estimated_cost'],
-      items: (json['items'] as List)
-          .map((i) => ItineraryItemData.fromJson(i))
-          .toList(),
+      dayNumber: json['day_number'] as int? ?? 1,
+      estimatedCost: json['estimated_cost'] as num? ?? 0,
+      items: (json['items'] as List?)
+          ?.map((i) => ItineraryItemData.fromJson(i))
+          .toList() ?? [],
     );
   }
 }
@@ -204,15 +204,15 @@ class ItineraryDetail {
 
   factory ItineraryDetail.fromJson(Map<String, dynamic> json) {
     return ItineraryDetail(
-      id: json['id'],
-      variant: json['variant'],
-      title: json['title'],
-      totalEstimate: json['total_estimate'],
-      budgetPercent: json['budget_percent'],
-      summary: ItinerarySummaryDetails.fromJson(json['summary']),
-      days: (json['days'] as List)
-          .map((d) => ItineraryDayData.fromJson(d))
-          .toList(),
+      id: json['id'] as int? ?? 0,
+      variant: json['variant'] as String? ?? "hemat",
+      title: json['title'] as String? ?? "Unknown Title",
+      totalEstimate: json['total_estimate'] as num? ?? 0,
+      budgetPercent: json['budget_percent'] as int? ?? 0,
+      summary: ItinerarySummaryDetails.fromJson(json['summary'] ?? {'tags': [], 'eco_points': 0, 'is_recommended': false}),
+      days: (json['days'] as List?)
+          ?.map((d) => ItineraryDayData.fromJson(d))
+          .toList() ?? [],
     );
   }
 }
