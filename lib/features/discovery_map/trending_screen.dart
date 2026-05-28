@@ -1,19 +1,23 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
+import '../destinations/providers/destinations_provider.dart';
+import '../destinations/models/destination.dart';
 
-class TrendingScreen extends StatelessWidget {
+class TrendingScreen extends ConsumerWidget {
   const TrendingScreen({super.key});
 
-  Widget _buildTopTrendingCard() {
+  Widget _buildTopTrendingCard(DestinationSummary topDest) {
     return Container(
       width: double.infinity,
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         image: DecorationImage(
-          image: NetworkImage(ImageHelper.getImageForCategory("umkm", "pasar_beringharjo")),
+          image: NetworkImage(ImageHelper.getImageForCategory(topDest.category, topDest.placeId)),
           fit: BoxFit.cover,
         ),
       ),
@@ -68,30 +72,24 @@ class TrendingScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(color: SColors.sdarkgreen, borderRadius: BorderRadius.circular(8)),
-                      child: const Text("UMKM", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.5), shape: BoxShape.circle),
-                      child: const Icon(Icons.accessible, color: Colors.white, size: 12),
+                      child: Text(topDest.category.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text("Pasar Beringharjo", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(topDest.name, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.location_on_outlined, color: Colors.white70, size: 14),
-                        SizedBox(width: 4),
-                        Text("Yogyakarta", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        const Icon(Icons.location_on_outlined, color: Colors.white70, size: 14),
+                        const SizedBox(width: 4),
+                        Text(topDest.city, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       ],
                     ),
-                    const Text("Rp 0 – 50K", style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(topDest.priceRange.label, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 14)),
                   ],
                 )
               ],
@@ -201,7 +199,9 @@ class TrendingScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final destState = ref.watch(destinationsProvider(null));
+    
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F6),
       appBar: AppBar(
@@ -325,93 +325,66 @@ class TrendingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(text: "6 ", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-                            TextSpan(text: "destinasi tren", style: TextStyle(color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: const Row(
-                          children: [
-                            Text("Urutkan: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            Text("Trending", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 10)),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  destState.when(
+                    data: (destinations) {
+                      if (destinations.isEmpty) return const SizedBox.shrink();
+                      
+                      final random = math.Random(DateTime.now().hour); // shuffle per hour
+                      final list = List.of(destinations)..shuffle(random);
+                      final topDest = list.first;
+                      final otherTrending = list.skip(1).take(5).toList();
 
-                  _buildTopTrendingCard(),
-                  const SizedBox(height: 16),
-
-                  _buildTrendingItemCard(
-                    rank: "#2",
-                    title: "Hutan Pinus Mangunan",
-                    location: "Bantul, DIY",
-                    rating: "4.8",
-                    reviews: "5,100",
-                    tagText: "📈 +120% views",
-                    tagColor: Colors.orange.shade800,
-                    price: "Rp 5K – 15K",
-                    imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus"),
-                  ),
-                  _buildTrendingItemCard(
-                    rank: "#3",
-                    title: "Kopi Klotok",
-                    location: "Sleman",
-                    rating: "4.7",
-                    reviews: "1,800",
-                    tagText: "⭐ Top kuliner",
-                    tagColor: Colors.orange.shade800,
-                    price: "Rp 20K – 50K",
-                    imageUrl: ImageHelper.getImageForCategory("cafe", "kopi_klotok"),
-                  ),
-                  _buildTrendingItemCard(
-                    rank: "#4",
-                    title: "Candi Prambanan",
-                    location: "Sleman",
-                    rating: "4.7",
-                    reviews: "12,400",
-                    tagText: "🏛️ Heritage pick",
-                    tagColor: Colors.brown.shade800,
-                    price: "Rp 50K",
-                    imageUrl: ImageHelper.getImageForCategory("heritage", "candi_prambanan"),
-                  ),
-                  _buildTrendingItemCard(
-                    rank: "#5",
-                    title: "Tugu Pal Putih",
-                    location: "Yogyakarta",
-                    rating: "4.5",
-                    reviews: "8,200",
-                    tagText: "📸 Most photographed",
-                    tagColor: Colors.orange.shade800,
-                    price: "Gratis",
-                    imageUrl: ImageHelper.getImageForCategory("iconic", "tugu_pal_putih"),
-                  ),
-                  _buildTrendingItemCard(
-                    rank: "#6",
-                    title: "Gudeg Yu Djum",
-                    location: "Yogyakarta",
-                    rating: "4.6",
-                    reviews: "3,400",
-                    tagText: "🍽️ Top kuliner",
-                    tagColor: Colors.orange.shade800,
-                    price: "Rp 30K – 60K",
-                    imageUrl: ImageHelper.getImageForCategory("restoran", "gudeg_yu_djum"),
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(text: "${1 + otherTrending.length} ", style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                                    const TextSpan(text: "destinasi tren", style: TextStyle(color: Colors.grey)),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Text("Urutkan: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
+                                    Text("Trending", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 10)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _buildTopTrendingCard(topDest),
+                          const SizedBox(height: 16),
+                          ...List.generate(otherTrending.length, (index) {
+                            final dest = otherTrending[index];
+                            return _buildTrendingItemCard(
+                              rank: "#${index + 2}",
+                              title: dest.name,
+                              location: dest.city,
+                              rating: dest.rating?.toStringAsFixed(1) ?? "4.5",
+                              reviews: "${math.Random().nextInt(1000) + 100}",
+                              tagText: "📈 Trending",
+                              tagColor: Colors.orange.shade800,
+                              price: dest.priceRange.label,
+                              imageUrl: ImageHelper.getImageForCategory(dest.category, dest.placeId),
+                            );
+                          }),
+                        ],
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (_, __) => const Text("Gagal memuat destinasi tren"),
                   ),
                 ],
               ),

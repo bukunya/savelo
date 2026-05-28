@@ -4,6 +4,7 @@ import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import 'widgets/logout_dialog.dart';
 import 'wishlist_screen.dart';
+import 'providers/favorites_provider.dart';
 
 import '../notifications/notification_screen.dart';
 import '../discovery_map/discovery_map_screen.dart';
@@ -133,9 +134,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildMenuItem(Icons.favorite_border, "Tersimpan", trailingText: "12", onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistScreen()));
-                    }),
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final favState = ref.watch(favoritesProvider);
+                        final count = favState.valueOrNull?.length ?? 0;
+                        return _buildMenuItem(Icons.favorite_border, "Tersimpan", trailingText: count.toString(), onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistScreen()));
+                        });
+                      }
+                    ),
                     const Divider(height: 1, color: Color(0xFFEEEEEE)),
                     _buildMenuItem(Icons.notifications_none, "Notifikasi", onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));

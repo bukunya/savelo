@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math; // Used for calculation during collapse
@@ -23,6 +24,7 @@ import '../profile/profile_screen.dart';
 import '../../core/auth_guard.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/providers/auth_provider.dart';
+import '../destinations/providers/destinations_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -414,35 +416,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const DestinasiDetailScreen(placeId: 'ChIJrTLr-GyuEmsRBfy61i59si0')),
-                              );
-                            },
-                            child: SDestinationCard(
-                              title: "Pasar Beringharjo",
-                              location: "Yogyakarta",
-                              priceRange: "Rp 0 – 50K",
-                              imageUrl: ImageHelper.getImageForCategory("umkm", "pasar_beringharjo"),
-                              isVerified: true,
-                            ),
-                          ),
-                          SDestinationCard(
-                            title: "Hutan Pinus Mangunan",
-                            location: "Bantul, DIY",
-                            priceRange: "Rp 5K – 15K",
-                            imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus_mangunan"),
-                            isVerified: false,
-                          ),
-                        ],
-                      ),
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final destState = ref.watch(destinationsProvider(null));
+                        return destState.when(
+                          data: (destinations) {
+                            if (destinations.isEmpty) return const SizedBox.shrink();
+                            
+                            // Get a few random destinations
+                            final random = math.Random(DateTime.now().hour); // shuffle per hour
+                            final list = List.of(destinations)..shuffle(random);
+                            final trending = list.take(3).toList();
+                            
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              clipBehavior: Clip.none,
+                              child: Row(
+                                children: trending.map((dest) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => DestinasiDetailScreen(placeId: dest.placeId)),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 16.0),
+                                      child: SDestinationCard(
+                                        title: dest.name,
+                                        location: dest.city,
+                                        priceRange: dest.priceRange.label,
+                                        imageUrl: ImageHelper.getImageForCategory(dest.category, dest.placeId),
+                                        isVerified: dest.rating != null && dest.rating! > 4.5,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            );
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (_, __) => const Text("Gagal memuat destinasi tren"),
+                        );
+                      }
                     ),
                     const SizedBox(height: 32),
 

@@ -102,7 +102,8 @@ class DestinasiDetailScreen extends ConsumerWidget {
               actions: [
                 Consumer(
                   builder: (context, ref, child) {
-                    final isFav = ref.watch(favoritesProvider.notifier).isFavorite(detail.id);
+                    ref.watch(favoritesProvider);
+                    final isFav = ref.read(favoritesProvider.notifier).isFavorite(detail.id);
                     return Container(
                       margin: const EdgeInsets.only(right: 16),
                       decoration: const BoxDecoration(
@@ -431,7 +432,15 @@ class DestinasiDetailScreen extends ConsumerWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                       elevation: 0,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Berhasil ditambahkan ke Itinerary!"),
+                          backgroundColor: SColors.sdarkgreen,
+                        ),
+                      );
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
                     child: const Text("Tambah ke Itinerary", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),

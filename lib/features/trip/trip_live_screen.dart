@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../core/utils/image_helper.dart';
@@ -18,6 +19,27 @@ class TripLiveScreen extends ConsumerStatefulWidget {
 
 class _TripLiveScreenState extends ConsumerState<TripLiveScreen> {
   int _completedItemsCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompletedCount();
+  }
+
+  Future<void> _loadCompletedCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final count = prefs.getInt('completed_items_${widget.itineraryId}') ?? 0;
+    if (mounted) {
+      setState(() {
+        _completedItemsCount = count;
+      });
+    }
+  }
+
+  Future<void> _saveCompletedCount(int count) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('completed_items_${widget.itineraryId}', count);
+  }
 
   Widget _buildSummaryMetric(String title, String mainValue, String subValue) {
     return Expanded(
@@ -261,6 +283,7 @@ class _TripLiveScreenState extends ConsumerState<TripLiveScreen> {
                                                   final success = await Navigator.push<bool>(
                                                     context,
                                                     MaterialPageRoute(builder: (context) => CheckInScreen(
+                                                      itineraryId: widget.itineraryId,
                                                       item: currentItem,
                                                       isLastItem: isLast,
                                                       detail: detail,
@@ -273,6 +296,7 @@ class _TripLiveScreenState extends ConsumerState<TripLiveScreen> {
                                                     setState(() {
                                                       _completedItemsCount++;
                                                     });
+                                                    _saveCompletedCount(_completedItemsCount);
                                                   }
                                                 },
                                                 icon: const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),

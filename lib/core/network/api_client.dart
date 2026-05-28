@@ -11,7 +11,8 @@ class ApiClient {
   // If running on a physical device, this should be your computer's local IP address.
   static String get baseUrl {
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api';
+      // return 'http://10.0.2.2:8000/api';
+      return 'http://127.0.0.1:8000/api';
       // return 'https://savelobe.afif.dev/api';
     }
     return 'http://localhost:8000/api';

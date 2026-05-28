@@ -6,11 +6,20 @@ class CheckInRundownScreen extends StatelessWidget {
   final int currentProgress;
   final int totalDestinations;
 
+  final int ecoPoints;
+  final int culturePoints;
+  final int pathPoints;
+  final int totalPathPoints;
+
   const CheckInRundownScreen({
     super.key,
     required this.destinationName,
     required this.currentProgress,
     required this.totalDestinations,
+    required this.ecoPoints,
+    required this.culturePoints,
+    required this.pathPoints,
+    required this.totalPathPoints,
   });
 
   @override
@@ -46,17 +55,19 @@ class CheckInRundownScreen extends StatelessWidget {
                 Text("$destinationName ditandai selesai.", style: const TextStyle(color: Colors.grey, fontSize: 14)),
                 const SizedBox(height: 4),
                 RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     text: "Kamu dapat ",
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
                     children: [
-                      TextSpan(text: "+55 PathPoints", style: TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold)),
-                      TextSpan(text: " & "),
-                      TextSpan(text: "+30 EcoPoints", style: TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold)),
-                      TextSpan(text: "."),
+                      TextSpan(text: "+$pathPoints PathPoints", style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold)),
+                      const TextSpan(text: " & "),
+                      TextSpan(text: "+$ecoPoints EcoPoints", style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold)),
+                      const TextSpan(text: "."),
                     ]
                   )
                 ),
+                const SizedBox(height: 8),
+                Text("Total PathPoints: $totalPathPoints", style: const TextStyle(color: SColors.sdarkgreen, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 48),
                 
                 Container(

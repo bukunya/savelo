@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
 import '../../shared/widgets/s_badge.dart';
 import '../../shared/widgets/s_info_banner.dart';
@@ -8,7 +10,11 @@ import 'models/itinerary.dart';
 import 'trip_selesai_screen.dart';
 import '../trip/check_in_rundown_screen.dart';
 
-class CheckInScreen extends StatefulWidget {
+import 'models/checkin.dart';
+import 'repositories/itinerary_repository.dart';
+
+class CheckInScreen extends ConsumerStatefulWidget {
+  final int itineraryId;
   final ItineraryItemData item;
   final bool isLastItem;
   final ItineraryDetailData detail;
@@ -17,6 +23,7 @@ class CheckInScreen extends StatefulWidget {
 
   const CheckInScreen({
     super.key, 
+    required this.itineraryId,
     required this.item,
     required this.isLastItem,
     required this.detail,
@@ -25,23 +32,93 @@ class CheckInScreen extends StatefulWidget {
   });
 
   @override
-  State<CheckInScreen> createState() => _CheckInScreenState();
+  ConsumerState<CheckInScreen> createState() => _CheckInScreenState();
 }
 
-class _CheckInScreenState extends State<CheckInScreen> {
-  int _selectedTransportIndex = 2; // Default to TransJogja
+class _CheckInScreenState extends ConsumerState<CheckInScreen> {
+  int _selectedTransportIndex = 0;
+  bool _isLoading = true;
+  CheckinPreviewData? _previewData;
 
-  final List<Map<String, dynamic>> _transportOptions = [
-    {"icon": Icons.directions_walk, "title": "Jalan kaki", "points": "+50 pts", "co2": "0 kg CO₂"},
-    {"icon": Icons.directions_bike, "title": "Sepeda", "points": "+45 pts", "co2": "0 kg CO₂"},
-    {"icon": Icons.directions_bus, "title": "TransJogja", "points": "+30 pts", "co2": "0.4 kg CO₂"},
-    {"icon": Icons.directions_railway, "title": "Kereta", "points": "+25 pts", "co2": "0.6 kg CO₂"},
-    {"icon": Icons.local_taxi, "title": "Ojek/Taksi Online", "points": "+10 pts", "co2": "1.8 kg CO₂"},
-    {"icon": Icons.directions_car, "title": "Mobil Pribadi", "points": "+5 pts", "co2": "2.6 kg CO₂"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadPreview();
+  }
+
+  Future<void> _loadPreview() async {
+    try {
+      final data = await ref.read(itineraryRepositoryProvider).getCheckinPreview(widget.itineraryId, widget.item.id);
+      if (mounted) {
+        setState(() {
+          _previewData = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  IconData _getIconForMode(String mode) {
+    switch (mode) {
+      case 'walking': return Icons.directions_walk;
+      case 'cycling': return Icons.directions_bike;
+      case 'bus': return Icons.directions_bus;
+      case 'train': return Icons.directions_railway;
+      case 'motorcycle': return Icons.two_wheeler;
+      case 'car': return Icons.directions_car;
+      default: return Icons.directions_car;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: SColors.sbackground,
+        appBar: AppBar(
+          backgroundColor: SColors.sbackground,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text("Check-in", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+          centerTitle: true,
+        ),
+        body: const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
+      );
+    }
+
+    if (_previewData == null) {
+      return const Scaffold(body: Center(child: Text("Gagal memuat data preview.")));
+    }
+
+    final preview = _previewData!;
+    final destination = preview.destination;
+    final transportModes = preview.transportModes;
+    final selectedMode = transportModes.isNotEmpty && _selectedTransportIndex < transportModes.length ? transportModes[_selectedTransportIndex] : null;
+    
+    // Since we skipped check-location, distance might be 0 from backend.
+    // We will estimate it using math.Random() to give dynamic feel.
+    final random = math.Random(destination.name.hashCode); 
+    final estimatedDistance = preview.legDistanceKm > 0 ? preview.legDistanceKm : (random.nextDouble() * 8.5 + 1.5);
+
+    // Calculation
+    final ecoPoints = selectedMode != null ? (selectedMode.ecoPointsRate * estimatedDistance).round() : 0;
+    final culturePoints = destination.culturePoints;
+    final pathPoints = ecoPoints + culturePoints;
+    
+    // CO2 Calculation
+    // Car is usually the baseline (id=3 in the csv) for saving. Just hardcode baseline for dummy UI or calculate difference
+    final carMode = transportModes.firstWhere((m) => m.mode == 'car', orElse: () => transportModes.first);
+    final baselineCo2 = carMode.co2PerKm * estimatedDistance;
+    final savedCo2 = selectedMode != null ? (baselineCo2 - (selectedMode.co2PerKm * estimatedDistance)) : 0;
+
     return Scaffold(
       backgroundColor: SColors.sbackground,
       appBar: AppBar(
@@ -105,12 +182,12 @@ class _CheckInScreenState extends State<CheckInScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              widget.item.name ?? 'Destinasi',
+                              destination.name,
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "${widget.item.mapCategory} • ${widget.item.costLabel}",
+                              destination.address ?? 'Alamat tidak tersedia',
                               style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
                           ],
@@ -174,14 +251,17 @@ class _CheckInScreenState extends State<CheckInScreen> {
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.5,
               ),
-              itemCount: _transportOptions.length,
+              itemCount: transportModes.length,
               itemBuilder: (context, index) {
-                final option = _transportOptions[index];
+                final mode = transportModes[index];
+                final pointsStr = "+${(mode.ecoPointsRate * estimatedDistance).round()} pts";
+                final co2Str = "${(mode.co2PerKm * estimatedDistance).toStringAsFixed(1)} kg CO₂";
+                
                 return STransportOptionCard(
-                  icon: option["icon"],
-                  title: option["title"],
-                  points: option["points"],
-                  co2: option["co2"],
+                  icon: _getIconForMode(mode.mode),
+                  title: mode.label,
+                  points: pointsStr,
+                  co2: co2Str,
                   isSelected: _selectedTransportIndex == index,
                   onTap: () {
                     setState(() {
@@ -218,10 +298,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(12)),
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Text("+30", style: TextStyle(color: SColors.sdarkgreen, fontSize: 20, fontWeight: FontWeight.bold)),
-                              Text("EcoPoints", style: TextStyle(color: SColors.sdarkgreen, fontSize: 10)),
+                              Text("+$ecoPoints", style: const TextStyle(color: SColors.sdarkgreen, fontSize: 20, fontWeight: FontWeight.bold)),
+                              const Text("EcoPoints", style: TextStyle(color: SColors.sdarkgreen, fontSize: 10)),
                             ],
                           ),
                         ),
@@ -233,7 +313,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                           decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(12)),
                           child: Column(
                             children: [
-                              Text("+25", style: TextStyle(color: Colors.orange.shade800, fontSize: 20, fontWeight: FontWeight.bold)),
+                              Text("+$culturePoints", style: TextStyle(color: Colors.orange.shade800, fontSize: 20, fontWeight: FontWeight.bold)),
                               Text("CulturePoints", style: TextStyle(color: Colors.orange.shade800, fontSize: 10)),
                             ],
                           ),
@@ -244,10 +324,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Text("+55", style: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
-                              Text("PathPoints", style: TextStyle(color: Colors.grey, fontSize: 10)),
+                              Text("+$pathPoints", style: const TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+                              const Text("PathPoints", style: TextStyle(color: Colors.grey, fontSize: 10)),
                             ],
                           ),
                         ),
@@ -260,16 +340,17 @@ class _CheckInScreenState extends State<CheckInScreen> {
             const SizedBox(height: 16),
 
             // AI Info Banner
-            SInfoBanner(
-              backgroundColor: const Color(0xFFF0F4FF),
-              icon: const Padding(
-                padding: EdgeInsets.only(top: 2),
-                child: SAiGeminiBadge(),
+            if (savedCo2 > 0)
+              SInfoBanner(
+                backgroundColor: const Color(0xFFF0F4FF),
+                icon: const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: SAiGeminiBadge(),
+                ),
+                text: "Pilihan ini hemat ~${savedCo2.toStringAsFixed(1)} kg CO₂ dibanding rata-rata pengunjung.",
+                textColor: const Color(0xFF3F51B5),
+                borderColor: const Color(0xFFE3E8FF),
               ),
-              text: "Pilihan ini hemat ~1.4 kg CO₂ dibanding rata-rata pengunjung.",
-              textColor: const Color(0xFF3F51B5),
-              borderColor: const Color(0xFFE3E8FF),
-            ),
             const SizedBox(height: 40),
           ],
         ),
@@ -286,30 +367,60 @@ class _CheckInScreenState extends State<CheckInScreen> {
               elevation: 0,
             ),
             onPressed: () async {
-              final result = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CheckInRundownScreen(
-                    destinationName: widget.item.name ?? "Destinasi",
-                    currentProgress: widget.currentProgress,
-                    totalDestinations: widget.totalItems,
-                  ),
-                ),
+              if (_selectedTransportIndex >= _previewData!.transportModes.length) return;
+              
+              final selectedMode = _previewData!.transportModes[_selectedTransportIndex];
+              
+              // Show loading overlay
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(child: CircularProgressIndicator(color: SColors.sdarkgreen)),
               );
+              
+              try {
+                final checkinData = await ref.read(itineraryRepositoryProvider).submitCheckin(
+                  widget.itineraryId, 
+                  widget.item.id, 
+                  selectedMode.id
+                );
+                
+                if (!context.mounted) return;
+                Navigator.pop(context); // hide loading
 
-              if (result == true) {
-                if (widget.isLastItem) {
-                  if (context.mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TripSelesaiScreen(detail: widget.detail)),
-                    );
-                  }
-                } else {
-                  if (context.mounted) {
-                    Navigator.pop(context, true); // Return true to increment completed items
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CheckInRundownScreen(
+                      destinationName: checkinData.item.name ?? "Destinasi",
+                      currentProgress: widget.currentProgress,
+                      totalDestinations: widget.totalItems,
+                      ecoPoints: checkinData.pointsEarned.ecoPoints,
+                      culturePoints: checkinData.pointsEarned.culturePoints,
+                      pathPoints: checkinData.pointsEarned.pathPoints,
+                      totalPathPoints: checkinData.userTotalPathPoints,
+                    ),
+                  ),
+                );
+
+                if (result == true) {
+                  if (widget.isLastItem) {
+                    if (context.mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TripSelesaiScreen(detail: widget.detail)),
+                      );
+                    }
+                  } else {
+                    if (context.mounted) {
+                      Navigator.pop(context, true); // Return true to increment completed items
+                    }
                   }
                 }
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context); // hide loading
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
             child: const Text(
