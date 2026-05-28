@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
-import '../../shared/widgets/s_ai_gemini_badge.dart';
+import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_timeline_item.dart';
 import '../budget_planner/models/itinerary.dart';
 import '../budget_planner/providers/itinerary_provider.dart';
@@ -70,7 +70,7 @@ class _TripLiveScreenState extends ConsumerState<TripLiveScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
-              "https://img.jakpost.net/c/2019/07/09/2019_07_09_76012_1562669678._large.jpg",
+              ImageHelper.getImageForCategory(item.category, item.name ?? item.placeId),
               width: 48,
               height: 48,
               fit: BoxFit.cover,
@@ -214,7 +214,7 @@ class _TripLiveScreenState extends ConsumerState<TripLiveScreen> {
                                       ClipRRect(
                                         borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
                                         child: Image.network(
-                                          "https://img.jakpost.net/c/2019/07/09/2019_07_09_76012_1562669678._large.jpg",
+                                          ImageHelper.getImageForCategory(currentItem.category, currentItem.name ?? currentItem.placeId),
                                           height: 140,
                                           width: double.infinity,
                                           fit: BoxFit.cover,

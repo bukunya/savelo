@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_bottom_navbar.dart';
 import '../budget_planner/budget_planner_screen.dart';
 import 'trip_live_screen.dart';
@@ -228,11 +229,11 @@ class _MyTripScreenState extends ConsumerState<MyTripScreen> {
                               status: "Sedang berjalan",
                               title: "Liburan ${detail.request.destinationLabel}",
                               location: detail.request.destinationLabel,
-                              date: "${detail.request.durationDays} hari", // No date from backend currently, just using duration
+                              date: "${detail.request.durationDays} hari",
                               people: "${detail.request.numPeople} orang",
                               price: "Rp ${detail.itinerary.totalEstimate}",
-                              progress: detail.itinerary.budgetPercent / 100, // Placeholder for actual progress logic
-                              imageUrl: "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png", // Jogja placeholder
+                              progress: detail.itinerary.budgetPercent / 100,
+                              imageUrl: ImageHelper.getImageForCategory("wisata", "yogyakarta_banner"),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -258,7 +259,7 @@ class _MyTripScreenState extends ConsumerState<MyTripScreen> {
                   date: "10–11 Mei 2026",
                   people: "4 orang",
                   price: "Rp 2.000.000",
-                  imageUrl: "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg", // Bandung placeholder
+                  imageUrl: ImageHelper.getImageForCategory("wisata", "bandung_cityscape"),
                 ),
                 
                 const SizedBox(height: 80), // Padding for bottom FAB

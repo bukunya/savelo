@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math; // Used for calculation during collapse
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 
 // Import all your custom UI widgets
 import '../../shared/widgets/s_pathpoints_card.dart';
@@ -425,12 +426,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 MaterialPageRoute(builder: (context) => const DestinasiDetailScreen(placeId: 'ChIJrTLr-GyuEmsRBfy61i59si0')),
                               );
                             },
-                            child: const SDestinationCard(
+                            child: SDestinationCard(
                               title: "Pasar Beringharjo",
                               location: "Yogyakarta",
                               priceRange: "Rp 0 – 50K",
-                              imageUrl:
-                                  "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
+                              imageUrl: ImageHelper.getImageForCategory("umkm", "pasar_beringharjo"),
                               isVerified: true,
                             ),
                           ),
@@ -438,8 +438,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             title: "Hutan Pinus Mangunan",
                             location: "Bantul, DIY",
                             priceRange: "Rp 5K – 15K",
-                            imageUrl:
-                                "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg",
+                            imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus_mangunan"),
                             isVerified: false,
                           ),
                         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_itinerary_card.dart';
 import '../../shared/widgets/s_info_banner.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
@@ -15,16 +16,16 @@ class SelectItineraryScreen extends StatelessWidget {
     return value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
   }
 
-  String _getFallbackImage(String variant) {
+  String _getImageForVariant(String variant) {
     switch (variant) {
       case 'hemat':
-        return "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg";
+        return ImageHelper.getImageForCategory("wisata", "hemat_trip");
       case 'seimbang':
-        return "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png";
+        return ImageHelper.getImageForCategory("iconic", "seimbang_trip");
       case 'experience':
-        return "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg";
+        return ImageHelper.getImageForCategory("alam", "experience_trip");
       default:
-        return "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg";
+        return ImageHelper.getImageForCategory("alam", variant);
     }
   }
 
@@ -86,7 +87,7 @@ class SelectItineraryScreen extends StatelessWidget {
                 child: SItineraryCard(
                   title: itinerary.title,
                   description: _getVariantDescription(itinerary.variant),
-                  imagePath: _getFallbackImage(itinerary.variant),
+                  imagePath: _getImageForVariant(itinerary.variant),
                   price: "Rp ${_formatCurrency(itinerary.totalEstimate)}",
                   budgetPercentageText: "${itinerary.budgetPercent}% budget",
                   budgetPercentage: itinerary.budgetPercent / 100,

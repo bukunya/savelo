@@ -70,9 +70,10 @@ class SplashScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(24), // Rounded
                     ),
                     padding: const EdgeInsets.all(12),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.contain,
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: SColors.sdarkgreen,
+                      size: 40,
                     ),
                   ),
                   const SizedBox(height: 24),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -34,7 +35,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Yogyakarta",
             rating: "4.6",
             price: "Rp 0",
-            imageUrl: "https://images.unsplash.com/photo-1596404981149-8d07018301ec?auto=format&fit=crop&q=80&w=400",
+            imageUrl: ImageHelper.getImageForCategory("umkm", "pasar_beringharjo"),
           ),
           _buildCard(
             context,
@@ -42,7 +43,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Bantul, DIY",
             rating: "4.8",
             price: "Rp 5K",
-            imageUrl: "https://images.unsplash.com/photo-1590118367980-863a3d5f30cb?auto=format&fit=crop&q=80&w=400",
+            imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus"),
             hasDiscount: true,
           ),
           _buildCard(
@@ -51,7 +52,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Sleman",
             rating: "4.7",
             price: "Rp 50K",
-            imageUrl: null, // to show placeholder
+            imageUrl: ImageHelper.getImageForCategory("heritage", "candi_prambanan"), // to show placeholder
           ),
           _buildCard(
             context,
@@ -59,7 +60,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Sleman",
             rating: "4.7",
             price: "Rp 20K",
-            imageUrl: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=400",
+            imageUrl: ImageHelper.getImageForCategory("cafe", "kopi_klotok"),
           ),
           _buildCard(
             context,
@@ -67,7 +68,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Yogyakarta",
             rating: "4.5",
             price: "Gratis",
-            imageUrl: "https://images.unsplash.com/photo-1555513220-db63c1a8bd32?auto=format&fit=crop&q=80&w=400",
+            imageUrl: ImageHelper.getImageForCategory("iconic", "tugu_pal_putih"),
           ),
           _buildCard(
             context,
@@ -75,7 +76,7 @@ class WishlistScreen extends StatelessWidget {
             location: "Yogyakarta",
             rating: "4.6",
             price: "Rp 30K",
-            imageUrl: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&q=80&w=400",
+            imageUrl: ImageHelper.getImageForCategory("restoran", "gudeg_yu_djum"),
           ),
         ],
       ),

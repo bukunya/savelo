@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
 import '../destinations/providers/destinations_provider.dart';
 
@@ -102,7 +103,7 @@ class DestinasiDetailScreen extends ConsumerWidget {
                   fit: StackFit.expand,
                   children: [
                     Image.network(
-                      detail.photos.isNotEmpty ? detail.photos.first['url'] ?? "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg" : "https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg",
+                      ImageHelper.getImageForCategory(detail.category, detail.placeId),
                       fit: BoxFit.cover,
                     ),
                     Container(

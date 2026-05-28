@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/savelo_colors.dart';
+import '../../core/utils/image_helper.dart';
 import '../../shared/widgets/s_ai_gemini_badge.dart';
 
 class TrendingScreen extends StatelessWidget {
@@ -11,8 +12,8 @@ class TrendingScreen extends StatelessWidget {
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        image: const DecorationImage(
-          image: NetworkImage("https://www.uii.ac.id/wp-content/uploads/2018/05/Jogja-1-1.jpg"), // Rice terrace placeholder
+        image: DecorationImage(
+          image: NetworkImage(ImageHelper.getImageForCategory("umkm", "pasar_beringharjo")),
           fit: BoxFit.cover,
         ),
       ),
@@ -366,7 +367,7 @@ class TrendingScreen extends StatelessWidget {
                     tagText: "📈 +120% views",
                     tagColor: Colors.orange.shade800,
                     price: "Rp 5K – 15K",
-                    imageUrl: "https://res.klook.com/image/upload/w_500,h_313,c_fill,q_85/activities/fqzsr56zk5qoik90d0qm.jpg",
+                    imageUrl: ImageHelper.getImageForCategory("alam", "hutan_pinus"),
                   ),
                   _buildTrendingItemCard(
                     rank: "#3",
@@ -377,7 +378,7 @@ class TrendingScreen extends StatelessWidget {
                     tagText: "⭐ Top kuliner",
                     tagColor: Colors.orange.shade800,
                     price: "Rp 20K – 50K",
-                    imageUrl: "https://img.jakpost.net/c/2019/07/09/2019_07_09_76012_1562669678._large.jpg", // Placeholder
+                    imageUrl: ImageHelper.getImageForCategory("cafe", "kopi_klotok"),
                   ),
                   _buildTrendingItemCard(
                     rank: "#4",
@@ -388,7 +389,7 @@ class TrendingScreen extends StatelessWidget {
                     tagText: "🏛️ Heritage pick",
                     tagColor: Colors.brown.shade800,
                     price: "Rp 50K",
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Yogyakarta_Indonesia_Prambanan-Temple-01.jpg/1200px-Yogyakarta_Indonesia_Prambanan-Temple-01.jpg", // Placeholder
+                    imageUrl: ImageHelper.getImageForCategory("heritage", "candi_prambanan"),
                   ),
                   _buildTrendingItemCard(
                     rank: "#5",
@@ -399,7 +400,7 @@ class TrendingScreen extends StatelessWidget {
                     tagText: "📸 Most photographed",
                     tagColor: Colors.orange.shade800,
                     price: "Gratis",
-                    imageUrl: "https://www.bakpiamutiarajogja.com/wp-content/uploads/2022/11/Sejarah-Tugu-Jogja.png",
+                    imageUrl: ImageHelper.getImageForCategory("iconic", "tugu_pal_putih"),
                   ),
                   _buildTrendingItemCard(
                     rank: "#6",
@@ -410,7 +411,7 @@ class TrendingScreen extends StatelessWidget {
                     tagText: "🍽️ Top kuliner",
                     tagColor: Colors.orange.shade800,
                     price: "Rp 30K – 60K",
-                    imageUrl: "https://img.jakpost.net/c/2019/07/09/2019_07_09_76012_1562669678._large.jpg", // Placeholder
+                    imageUrl: ImageHelper.getImageForCategory("restoran", "gudeg_yu_djum"),
                   ),
                 ],
               ),
